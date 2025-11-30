@@ -135,10 +135,10 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
 
     if (ok) {
       setIsCorrect(true);
-      onFeedback('🎉 Betul! Semua komponen lengkap!', 3000, true); // ⭐ GREEN
+      onFeedback('🎉 Hebat! Semua komponen betul!', 3000, true); // ⭐ GREEN
     } else {
       setIsCorrect(false);
-      onFeedback('❌ Ada yang salah. Cuba lagi!', 3000, false); // ⭐ RED
+      onFeedback('😅 Masih ada komponen yang tersilap!', 3000, false); // ⭐ RED
     }
   };
 
@@ -180,7 +180,7 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
         <button className="primary-button" onClick={handleReset}>
-          Reset
+          Buat Semula
         </button>
 
         <button className="primary-button" onClick={checkAnswer}>
