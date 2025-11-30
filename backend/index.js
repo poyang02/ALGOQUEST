@@ -5,17 +5,32 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
-const port = 5000;
-const JWT_SECRET = "a_super_secret_key_that_should_be_in_an_env_file";
 
-const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'algoquest',
-  // 🚨 REMINDER: Make sure to use your actual password here!
-  password: '61212611414142002', 
-  port: 5432,
-});
+// 1. Use the Port Render assigns, or 5000 if local
+const port = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || "a_super_secret_key_that_should_be_in_an_env_file";
+
+// 2. Configure Database Connection (Smart Switch)
+// If we have a DATABASE_URL env var, we are on Render.
+const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+
+const pool = new Pool(
+  isProduction
+    ? {
+        connectionString: process.env.DATABASE_URL,
+        ssl: {
+          rejectUnauthorized: false, // Required for Render's secure connection
+        },
+      }
+    : {
+        user: 'postgres',
+        host: 'localhost',
+        database: 'algoquest',
+        // 🚨 REMINDER: Make sure to use your actual password here for local testing!
+        password: '61212611414142002', 
+        port: 5432,
+      }
+);
 
 app.use(cors());
 app.use(express.json());
@@ -33,9 +48,8 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// --- Auth Endpoints (No Change) ---
+// --- Auth Endpoints ---
 app.post('/api/register', async (req, res) => {
-  // ... (code is unchanged)
   const { name, email, password } = req.body;
   try {
     const salt = await bcrypt.genSalt(10);
@@ -52,7 +66,6 @@ app.post('/api/register', async (req, res) => {
 });
 
 app.post('/api/login', async (req, res) => {
-  // ... (code is unchanged)
   const { email, password } = req.body;
   try {
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
@@ -68,10 +81,9 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// --- NEW: Endpoint to get the logged-in user's data ---
+// --- User Data Endpoint ---
 app.get('/api/user/me', authenticateToken, async (req, res) => {
   try {
-    // req.user.id comes from the authenticateToken middleware
     const user = await pool.query("SELECT id, name, email FROM users WHERE id = $1", [
       req.user.id,
     ]);
@@ -85,9 +97,8 @@ app.get('/api/user/me', authenticateToken, async (req, res) => {
   }
 });
 
-// --- Mission Progress Endpoints (No Change) ---
+// --- Mission Progress Endpoints ---
 app.get('/api/progress', authenticateToken, async (req, res) => {
-  // ... (code is unchanged)
   try {
     const progress = await pool.query(
       "SELECT mission_id, score FROM mission_progress WHERE user_id = $1",
@@ -101,7 +112,6 @@ app.get('/api/progress', authenticateToken, async (req, res) => {
 });
 
 app.post('/api/progress', authenticateToken, async (req, res) => {
-  // ... (code is unchanged)
   const { missionId, score } = req.body;
   const userId = req.user.id;
   try {
@@ -120,6 +130,7 @@ app.post('/api/progress', authenticateToken, async (req, res) => {
   }
 });
 
+// 3. Update the listen command to use the dynamic port
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });
