@@ -224,7 +224,7 @@ function Mission1_Pengabstrakan({ onContinue, onFeedback }) {
       <h3>TAHAP 2: PENGABSTRAKAN</h3>
       <p>
         Sistem Akademik menerima banyak maklumat pelajar tetapi hanya data penting diperlukan untuk pendaftaran. 
-Tugas anda ialah memilih <br></br>dan menyusun maklumat penting supaya proses pendaftaran berjalan dengan betul!
+Tugas anda ialah memilih dan menyusun maklumat penting supaya proses pendaftaran berjalan dengan betul!
 
       </p>
       <hr />
