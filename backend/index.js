@@ -5,142 +5,121 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const app = express();
+const port = 5000;
+const JWT_SECRET = "a_super_secret_key_that_should_be_in_an_env_file";
 
-// Render uses dynamic PORT
-const PORT = process.env.PORT || 5000;
-
-// Use Render DATABASE_URL when deployed
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgres://postgres:61212611414142002@localhost:5432/algoquest",
-  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
+  user: 'postgres',
+  host: 'localhost',
+  database: 'algoquest',
+  // 🚨 REMINDER: Make sure to use your actual password here!
+  password: '61212611414142002', 
+  port: 5432,
 });
 
-const JWT_SECRET = process.env.JWT_SECRET || "a_super_secret_key_that_should_be_in_an_env_file";
-
-// ✅ CORS — ALLOW NETLIFY FRONTEND
-app.use(
-  cors({
-    origin: [
-      "https://amazing-croissant-9f256c.netlify.app", // your Netlify site
-      "http://localhost:5173" // for local dev
-    ],
-    credentials: true
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
-// ---------------- AUTH MIDDLEWARE ----------------
+// --- Authentication Middleware ---
 const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-  if (!token) return res.status(401).json({ error: "Access denied" });
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if (token == null) return res.sendStatus(401);
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid token" });
+    if (err) return res.sendStatus(403);
     req.user = user;
     next();
   });
 };
 
-// ---------------- REGISTER ----------------
-app.post("/api/register", async (req, res) => {
+// --- Auth Endpoints (No Change) ---
+app.post('/api/register', async (req, res) => {
+  // ... (code is unchanged)
+  const { name, email, password } = req.body;
   try {
-    const { name, email, password } = req.body;
-
-    const hashed = await bcrypt.hash(password, 10);
-    const result = await pool.query(
-      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email",
-      [name, email, hashed]
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newUser = await pool.query(
+      "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *",
+      [name, email, hashedPassword]
     );
-
-    res.json(result.rows[0]);
+    res.json(newUser.rows[0]);
   } catch (err) {
-    console.error("REGISTER ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 });
 
-// ---------------- LOGIN ----------------
-app.post("/api/login", async (req, res) => {
+app.post('/api/login', async (req, res) => {
+  // ... (code is unchanged)
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (user.rows.length === 0) return res.status(401).json("Invalid credential");
+    const validPassword = await bcrypt.compare(password, user.rows[0].password);
+    if (!validPassword) return res.status(401).json("Invalid credential");
 
-    const userResult = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-
-    if (userResult.rows.length === 0)
-      return res.status(401).json({ error: "Invalid credentials" });
-
-    const user = userResult.rows[0];
-    const passwordMatch = await bcrypt.compare(password, user.password);
-
-    if (!passwordMatch)
-      return res.status(401).json({ error: "Invalid credentials" });
-
-    const token = jwt.sign({ id: user.id }, JWT_SECRET);
-
-    res.json({ status: "ok", token });
+    const token = jwt.sign({ id: user.rows[0].id }, JWT_SECRET);
+    res.json({ status: 'ok', token });
   } catch (err) {
-    console.error("LOGIN ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 });
 
-// ---------------- GET ME ----------------
-app.get("/api/user/me", authenticateToken, async (req, res) => {
+// --- NEW: Endpoint to get the logged-in user's data ---
+app.get('/api/user/me', authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(
-      "SELECT id, name, email FROM users WHERE id = $1",
-      [req.user.id]
-    );
-
-    if (result.rows.length === 0)
-      return res.status(404).json({ error: "User not found" });
-
-    res.json(result.rows[0]);
+    // req.user.id comes from the authenticateToken middleware
+    const user = await pool.query("SELECT id, name, email FROM users WHERE id = $1", [
+      req.user.id,
+    ]);
+    if (user.rows.length === 0) {
+      return res.status(404).json("User not found");
+    }
+    res.json(user.rows[0]);
   } catch (err) {
-    console.error("GET USER ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 });
 
-// ---------------- GET PROGRESS ----------------
-app.get("/api/progress", authenticateToken, async (req, res) => {
+// --- Mission Progress Endpoints (No Change) ---
+app.get('/api/progress', authenticateToken, async (req, res) => {
+  // ... (code is unchanged)
   try {
-    const result = await pool.query(
+    const progress = await pool.query(
       "SELECT mission_id, score FROM mission_progress WHERE user_id = $1",
       [req.user.id]
     );
-
-    res.json(result.rows);
+    res.json(progress.rows);
   } catch (err) {
-    console.error("GET PROGRESS ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 });
 
-// ---------------- SAVE PROGRESS ----------------
-app.post("/api/progress", authenticateToken, async (req, res) => {
+app.post('/api/progress', authenticateToken, async (req, res) => {
+  // ... (code is unchanged)
+  const { missionId, score } = req.body;
+  const userId = req.user.id;
   try {
-    const { missionId, score } = req.body;
-
-    const result = await pool.query(
-      `INSERT INTO mission_progress (user_id, mission_id, score)
+    const newProgress = await pool.query(
+      `INSERT INTO mission_progress (user_id, mission_id, score) 
        VALUES ($1, $2, $3)
-       ON CONFLICT (user_id, mission_id)
-       DO UPDATE SET score = EXCLUDED.score
+       ON CONFLICT (user_id, mission_id) 
+       DO UPDATE SET score = $3
        RETURNING *`,
-      [req.user.id, missionId, score]
+      [userId, missionId, score]
     );
-
-    res.json(result.rows[0]);
+    res.json(newProgress.rows[0]);
   } catch (err) {
-    console.error("SAVE PROGRESS ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+    console.error(err.message);
+    res.status(500).send("Server error");
   }
 });
 
-app.listen(PORT, () => console.log("Server running on port", PORT));
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
