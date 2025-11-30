@@ -78,7 +78,6 @@ function Login() {
         <button type="submit" onMouseEnter={playHoverSound}>Log Masuk</button>
       </form>
       <p>Belum ada akaun? <Link to="/register">Daftar di sini</Link></p>
-      <p>Lupa kata laluan? Klik sini</p>
     </div>
   );
 }
