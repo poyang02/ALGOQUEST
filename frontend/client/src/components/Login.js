@@ -31,7 +31,7 @@ function Login() {
     setRobotMessage("Sedang menyemak identiti..."); // Message while loading
 
     try {
-      const response = await fetch('https://algoquest-api.onrender.com/api/login', {
+      const response = await fetch('https://algoquest-api.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
