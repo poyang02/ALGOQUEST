@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Welcome from './Welcome';
 import HowToPlay from './HowToPlay';
@@ -10,22 +10,27 @@ import Mission3 from './Mission3';
 function Game({ user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
+  
   // 1. Initialize state from URL history (for persistence across refreshes)
-  const [gameState, setGameState] = React.useState(location.state?.screen || 'welcome'); 
+  const [gameState, setGameState] = useState(location.state?.screen || 'welcome'); 
 
-  // 2. Update the URL state every time the gameState changes (for dynamic background switching)
+  // 2. Update the URL state every time the gameState changes
   useEffect(() => {
     // Only update if the screen state has actually changed
     if (location.state?.screen !== gameState) {
-      navigate(location.pathname, { replace: true, state: { screen: gameState } });
+      // IMPORTANT: We pass 'user' in the state so Hub.js can read location.state.user
+      navigate(location.pathname, { 
+        replace: true, 
+        state: { screen: gameState, user: user } 
+      });
     }
-  }, [gameState, navigate, location.pathname, location.state]);
+  }, [gameState, navigate, location.pathname, location.state, user]);
 
   const handleSetGameState = (newState) => {
     setGameState(newState);
   };
 
-  // 3. Central function to send score to the backend
+  // 3. Central function to send score to the backend (Render URL)
   const handleMissionComplete = async (missionId, score) => {
     const token = localStorage.getItem('token');
     try {
@@ -53,7 +58,7 @@ function Game({ user, onLogout }) {
       case 'hub':
         return (
           <Hub
-            onLogout={onLogout} // Pass logout for Tamat Permainan button
+            onLogout={onLogout} 
             onStartMission1={() => handleSetGameState('mission1')}
             onStartMission2={() => handleSetGameState('mission2')}
             onStartMission3={() => handleSetGameState('mission3')}
