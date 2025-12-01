@@ -41,7 +41,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
       if (onFeedback) {
         onFeedback(
           
-            '✅ Hebat! Anda telah membetulkan ralat logik — pelajar hanya lulus jika kedua-dua markah PB dan PA ≥ 50.\n\n' +
+            '✅ “Hebat! Anda telah membetulkan ralat logik — pelajar hanya lulus jika kedua-dua markah PB dan PA ≥ 50.”\n\n' +
             '🏅 Anda telah memperoleh lencana "Master Pemulih Logik".', 3000, true
         );
       }
@@ -55,7 +55,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
       if (onFeedback) {
         onFeedback(
           
-            '❌ Semak semula logik syarat. Sistem sepatutnya menilai kedua-dua markah sebelum menentukan keputusan.', 3000, false
+            '❌ “Semak semula logik syarat. Sistem sepatutnya menilai kedua-dua markah sebelum menentukan keputusan.”', 3000, false
         );
       }
     }
@@ -78,61 +78,80 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
       </p>
       <hr />
 
-      <div className="quiz-container">
-        {/* Pseudokod (kiri) */}
-        <div className="pseudocode-box" style={{ width: '48%' }}>
-          <div className="highlight-box" style={{ textAlign: 'center', fontWeight: 'bold' }}>
-            PSEUDOKOD
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <p>Mula</p>
-            <p>Masukkan Markah PB dan Markah PA</p>
-            <p>Jika PB {'>'} 50 dan PA {'<'} 50</p>
-            <p>&nbsp;&nbsp;Status = &quot;Lulus&quot;</p>
-            <p>Jika tidak</p>
-            <p>&nbsp;&nbsp;Status = &quot;Gagal&quot;</p>
-            <p>Cetak Status</p>
-            <p>Tamat</p>
-          </div>
-        </div>
+      <div className="quiz-container" style={{ display: 'flex', gap: '4%', marginTop: '20px' }}>
+  {/* Pseudokod (kiri) */}
+  <div className="pseudocode-box" style={{ width: '48%' }}>
+    <div
+      className="highlight-box"
+      style={{
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: '1.1rem',
+        lineHeight: '1.5',
+        textTransform: 'uppercase'
+      }}
+    >
+      PSEUDOKOD
+    </div>
+    <div style={{ textAlign: 'center', marginTop: '8px' }}>
+      <p>Mula</p>
+      <p>Masukkan Markah PB dan Markah PA</p>
+      <p>Jika PB {'>'} 50 dan PA {'<'} 50</p>
+      <p>&nbsp;&nbsp;Status = &quot;Lulus&quot;</p>
+      <p>Jika tidak</p>
+      <p>&nbsp;&nbsp;Status = &quot;Gagal&quot;</p>
+      <p>Cetak Status</p>
+      <p>Tamat</p>
+    </div>
+  </div>
 
-        {/* Maklumat Output (kanan) */}
-        <div className="quiz-answers" style={{ width: '48%' }}>
-          <div className="highlight-box" style={{ textAlign: 'center', fontWeight: 'bold' }}>
-            MAKLUMAT OUTPUT
-          </div>
+  {/* Maklumat Output (kanan) */}
+  <div className="quiz-answers" style={{ width: '48%' }}>
+    <div
+      className="highlight-box"
+      style={{
+        textAlign: 'center',
+        fontWeight: 'bold',
+        fontSize: '1.1rem',
+        lineHeight: '1.5',
+        textTransform: 'uppercase'
+      }}
+    >
+      MAKLUMAT OUTPUT
+    </div>
 
-          {/* 2-column layout inside Maklumat Output */}
-          <div
-            className="output-table"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '8px',
-              marginTop: '10px',
-              textAlign: 'center',
-            }}
-          >
-            {/* Column 1: Input */}
-            <div>
-              <p style={{ fontWeight: 'bold' }}>Input</p>
-              <p>PB = 70, PA = 80 (sepatutnya Lulus)</p>
-              <p>PB = 70, PA = 30</p>
-              <p>PB = 40, PA = 60</p>
-              <p>PB = 60, PA = 60 (sepatutnya Lulus)</p>
-            </div>
-
-            {/* Column 2: Output Sistem */}
-            <div>
-              <p style={{ fontWeight: 'bold' }}>Output Sistem</p>
-              <p>Status: Gagal ❌</p>
-              <p>Status: Lulus ✅</p>
-              <p>Status: Gagal ✅</p>
-              <p>Status: Gagal ❌</p>
-            </div>
-          </div>
-        </div>
+    {/* 2-column layout inside Maklumat Output */}
+    <div
+      className="output-table"
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '8px',
+        marginTop: '10px',
+        textAlign: 'center',
+      }}
+    >
+      {/* Column 1: Input */}
+      <div>
+        <p style={{ fontWeight: 'bold' }}>Input</p>
+        <p>PB = 70, PA = 80 (sepatutnya Lulus)</p>
+        <p>PB = 70, PA = 30</p>
+        <p>PB = 40, PA = 60</p>
+        <p>PB = 60, PA = 60 (sepatutnya Lulus)</p>
       </div>
+
+      {/* Column 2: Output Sistem */}
+      <div>
+        <p style={{ fontWeight: 'bold' }}>Output Sistem</p>
+        <p>Status: Gagal ❌</p>
+        <p>Status: Lulus ✅</p>
+        <p>Status: Gagal ✅</p>
+        <p>Status: Gagal ❌</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       <hr />
       <h4>Apakah punca utama kesilapan logik berdasarkan perbezaan output di atas?</h4>
@@ -183,44 +202,34 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
       <hr />
 
       {/* 3 buttons on the right */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '10px',
-          marginTop: '10px',
-        }}
-      >
-        <button
-          onClick={handleReset}
-          className="primary-button"
-          style={{ width: 'auto' }}
-        >
-          Buat Semula
-        </button>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+  <button
+    onClick={handleReset}
+    className="primary-button"
+  >
+    Buat Semula
+  </button>
 
-        <button
-          onClick={checkAnswer}
-          className="primary-button"
-          style={{ width: 'auto' }}
-        >
-          Semak Jawapan
-        </button>
+  <button
+    onClick={checkAnswer}
+    className="primary-button"
+  >
+    Semak Jawapan
+  </button>
 
-        <button
-          onClick={handleNext}
-          className="primary-button"
-          style={{
-            width: 'auto',
-            backgroundColor: '#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed',
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+  <button
+    onClick={isCorrect ? handleNext : undefined}
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+  >
+    Hantar
+  </button>
+</div>
+
     </div>
   );
 }

@@ -247,7 +247,8 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
     setIsCorrect(isRight);
     if (isRight) {
-      onFeedback?.('✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan.', 3000, true);
+      onFeedback?.('✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan.\n\n' +
+            '🏅 Anda telah memperoleh lencana "Master Algoritma".', 3000, true);
       onBadgeEarned?.('Master Algoritma');
     } else {
       onFeedback?.('❌ Semak semula susunan dalam carta alir.',3000, false);
@@ -265,7 +266,9 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   return (
     <div>
       <h3>TAHAP 3: PEMBINAAN ALGORITMA</h3>
-      <p><em>Seret jawapan dari pseudokod ke bentuk carta alir yang betul.</em></p>
+      <p><em>Sistem Peperiksaan memerlukan algoritma keputusan lulus/gagal.  
+Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
+</em></p>
       <hr />
 
       <DndContext

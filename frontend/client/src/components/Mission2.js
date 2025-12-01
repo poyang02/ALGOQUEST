@@ -12,7 +12,7 @@ const ROBOT_TEXTS = {
   pengabstrakan:
     'Tumpukan kepada data yang mempengaruhi keputusan pelajar. Pilih maklumat yang penting untuk menentukan lulus atau gagal. Jangan terpedaya dengan data tambahan yang tidak berkaitan!',
   pembinaan:
-    'Bina struktur sistem dan logik berdasarkan maklumat yang dianalisis. Pastikan setiap peringkat diproses dengan betul.',
+    'Padankan setiap baris pseudokod dengan simbol carta alir yang betul (Mula/Tamat, Input/Output, Proses dan Keputusan). ',
   penyahpepijat:
     'Semak pseudokod dan output, kenal pasti ralat logik, dan pilih pembetulan yang paling tepat.',
   complete: 'Tahniah! Misi telah selesai.',

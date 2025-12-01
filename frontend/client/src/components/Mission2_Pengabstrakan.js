@@ -52,7 +52,7 @@ const INITIAL_DATA = {
     { id: 'd-3', content: 'Status Lulus' },
     { id: 'd-4', content: 'Kelas' },
     { id: 'd-5', content: 'Program' },
-    { id: 'd-6', content: 'Syarat Lulus (>/=50%)' },
+    { id: 'd-6', content: 'Syarat Lulus (≥50%)' },
     { id: 'd-7', content: 'Markah PB' },
     { id: 'd-8', content: 'Tarikh Cetakan Slip' },
     { id: 'd-9', content: 'No Telefon' },
@@ -63,8 +63,8 @@ const INITIAL_DATA = {
 
 const INITIAL_STEPS = {
   available_langkah: [
-    { id: 'l-1', content: 'Semak Markah PB dan PA >/= 50' },
-    { id: 'l-2', content: 'Semak Kehadiran >/= 80%' },
+    { id: 'l-1', content: 'Semak Markah PB dan PA ≥50' },
+    { id: 'l-2', content: 'Semak Kehadiran ≥80%' },
     { id: 'l-3', content: 'Tentukan Status: Lulus atau Gagal' },
   ],
   ordered_langkah: [],
@@ -197,7 +197,8 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
     <div>
       <h3>TAHAP 2: PENGABSTRAKAN</h3>
       <p>
-        Pilih data yang penting sahaja dan susun langkah model logik dalam urutan yang betul.
+           Sistem Peperiksaan perlu mengenal pasti maklumat penting untuk menentukan sama ada pelajar lulus atau gagal. Tugas anda ialah  memilih data yang benar-benar diperlukan dalam penilaian keputusan pelajar, dan abaikan maklumat yang tidak relevan.
+
       </p>
       <hr />
 
@@ -239,18 +240,44 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
 
       <hr />
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-        <button onClick={handleReset} className="primary-button">Buat Semula</button>
-        <button onClick={checkAnswer} className="primary-button">Semak Jawapan</button>
-        <button
-          onClick={isCorrect ? onContinue : undefined}
-          className="primary-button"
-          style={{ backgroundColor:'#2ecc71', opacity: isCorrect ? 1 : 0.5, cursor: isCorrect ? 'pointer' : 'not-allowed' }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+  <button
+    className="primary-button"
+    onClick={handleReset}
+    style={{ transition: 'transform 0.2s ease' }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+  >
+    Buat Semula
+  </button>
+
+  <button
+    className="primary-button"
+    onClick={checkAnswer}
+    style={{ transition: 'transform 0.2s ease' }}
+    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+  >
+    Semak Jawapan
+  </button>
+
+  <button
+    className="primary-button"
+    onClick={isCorrect ? onContinue : undefined}
+    disabled={!isCorrect}
+    style={{
+      backgroundColor: '#2ecc71',
+      opacity: isCorrect ? 1 : 0.5,
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+      transition: 'transform 0.2s ease, background-color 0.2s ease',
+    }}
+    onMouseEnter={(e) => isCorrect && (e.currentTarget.style.transform = 'scale(1.05)')}
+    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }

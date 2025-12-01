@@ -161,7 +161,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
         { id: 'item-2', content: 'Markah PA' },
         { id: 'item-3', content: 'Tentukan Gred' },
         { id: 'item-4', content: 'Gred Huruf' },
-        { id: 'item-5', content: 'Kehadiran (%)' },
+        { id: 'item-5', content: 'No Pendaftaran' },
         { id: 'item-6', content: 'Semak Syarat Lulus' },
         { id: 'item-7', content: 'Status Lulus' },
         { id: 'item-8', content: 'Markah PB' },
@@ -205,27 +205,28 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       <hr />
 
       {/* Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-        <button onClick={reset} className="primary-button" style={{ width: 'auto' }}>
-          Buat Semula
-        </button>
-        <button onClick={checkAnswer} className="primary-button" style={{ width: 'auto' }}>
-          Semak Jawapan
-        </button>
-        <button
-          onClick={handleNext}
-          className="primary-button"
-          style={{
-            width: 'auto',
-            backgroundColor: '#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed',
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+  <button className="primary-button" onClick={reset}>
+    Buat Semula
+  </button>
+
+  <button className="primary-button" onClick={checkAnswer}>
+    Semak Jawapan
+  </button>
+
+  <button
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+    onClick={isCorrect ? handleNext : undefined}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }
