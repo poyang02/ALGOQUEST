@@ -126,9 +126,9 @@ function Mission3_Pengabstrakan({ onContinue, setRobotText, onFeedback, isCorrec
 
     if (JSON.stringify(correctData) === JSON.stringify(playerData) &&
         JSON.stringify(correctLangkah) === JSON.stringify(playerLangkah)) {
-      onFeedback('✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan Kampus Digital.', true);
+      onFeedback('✅ Betul Semua“Hebat! Anda telah menyusun logik sistem kewangan Kampus Digital dengan tepat. Kini sistem boleh memproses bayaran pelajar secara automatik!', true);
     } else {
-      onFeedback('⚠️ Semak semula. Semua data pelajar seperti nombor pendaftaran dan jumlah bayaran adalah Input, manakala pengiraan baki ialah Proses.', false);
+      onFeedback('❌ Salah “Urutan ini belum logik. Fikir semula urutan sebenar dalam proses bayaran pelajar.”', false);
     }
   };
 
@@ -169,7 +169,8 @@ function Mission3_Pengabstrakan({ onContinue, setRobotText, onFeedback, isCorrec
     <div>
       <h3>TAHAP 2: PENGABSTRAKAN</h3>
       <p>
-        Sistem Kewangan Kampus Digital sedang dibangunkan untuk mengurus bayaran yuran pelajar secara automatik. Bantu sistem menapis data penting dan menyusun langkah logik supaya pengiraan yuran berjalan dengan betul.
+           Sistem Kewangan Kampus Digital kini sedang dibangunkan untuk mengurus bayaran yuran pelajar secara automatik. Namun, beberapa langkah pseudokod masih bercampur dan mengandungi data yang tidak diperlukan.  Bantu Sistem Kewangan menapis data penting dan menyusun semula langkah logik yang tepat supaya pengiraan yuran setiap pelajar berjalan dengan betul!
+
       </p>
       <hr />
 
@@ -190,21 +191,27 @@ function Mission3_Pengabstrakan({ onContinue, setRobotText, onFeedback, isCorrec
       <hr />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-        <button onClick={handleReset} className="primary-button">Buat Semula</button>
-        <button onClick={checkAnswer} className="primary-button">Semak Jawapan</button>
-        <button
-          onClick={isCorrect ? onContinue : undefined}
-          className="primary-button"
-          style={{
-            backgroundColor: '#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed'
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+  <button onClick={handleReset} className="primary-button">
+    Buat Semula
+  </button>
+
+  <button onClick={checkAnswer} className="primary-button">
+    Semak Jawapan
+  </button>
+
+  <button
+    onClick={isCorrect ? onContinue : undefined}
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }

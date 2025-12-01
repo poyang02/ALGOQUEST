@@ -183,10 +183,11 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
     setIsCorrect(isRight);
     if (isRight) {
-      onFeedback?.('✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan.', true);
+      onFeedback?.('✅ Jawapan Betul“Hebat! Struktur algoritma kewangan kamu lengkap dan tersusun. Sistem berjaya mengira baki serta menentukan status bayaran dengan betul. Semua langkah input, proses dan output telah digunakan secara logik!”\n\n' +
+            '🏅 Anda telah memperoleh lencana "Master Algoritma".', true);
       onBadgeEarned?.('Master Algoritma');
     } else {
-      onFeedback?.('❌ Semak semula susunan dalam carta alir.', false);
+      onFeedback?.('❌ Jawapan Salah (Susunan atau Formula Salah) “Masih ada kesilapan logik! Semak semula urutan langkah kamu. Pastikan sistem mengira baki sebelum menentukan status bayaran, dan semua input telah dimasukkan terlebih dahulu.”', false);
     }
   };
 
@@ -198,7 +199,8 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   return (
     <div>
       <h3>TAHAP 3: PEMBINAAN ALGORITMA</h3>
-      <p><em>Seret jawapan dari pseudokod ke bentuk carta alir yang betul.</em></p>
+      <p><em>Sistem Kewangan Kampus Digital kini sedang membina algoritma lengkap untuk memproses bayaran yuran setiap pelajar.  Bantu sistem menyusun langkah pseudokod dalam urutan yang betul dan padankan setiap langkah dengan simbol carta alir yang sesuai. Pastikan struktur ulangan digunakan supaya proses pembayaran boleh dijalankan untuk setiap pelajar.
+</em></p>
       <hr />
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>

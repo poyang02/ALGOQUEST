@@ -163,22 +163,34 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
       </DndContext>
       <hr />
 
-      <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', marginTop:'10px' }}>
-        <button onClick={handleReset} className="primary-button">Buat Semula</button>
-        <button onClick={checkAnswer} className="primary-button">Semak Jawapan</button>
-        <button
-          onClick={isCorrect ? onContinue : undefined}
-          className="primary-button"
-          style={{
-            backgroundColor:'#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed'
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+  <button
+    onClick={handleReset}
+    className="primary-button"
+  >
+    Buat Semula
+  </button>
+
+  <button
+    onClick={checkAnswer}
+    className="primary-button"
+  >
+    Semak Jawapan
+  </button>
+
+  <button
+    onClick={isCorrect ? onContinue : undefined}
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }
