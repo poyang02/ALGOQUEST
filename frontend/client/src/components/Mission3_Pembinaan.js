@@ -216,29 +216,241 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
           </div>
 
           {/* Flowchart */}
-<div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', transform: 'scale(0.9)', transformOrigin: 'top center' }}>
-  <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>CARTA ALIR</h4>
-  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
-    <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} /><div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="parallelogram1" shapeType="parallelogram" items={items.parallelogram1} /><div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="parallelogram2" shapeType="parallelogram" items={items.parallelogram2} /><div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="rectangle1" shapeType="rectangle" items={items.rectangle1} /><div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="diamond1" shapeType="diamond" items={items.diamond1} /><div style={{ fontSize:'0.8rem' }}>↓</div>
+<div
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    position: 'relative',
+    transform: 'scale(0.9)',
+    transformOrigin: 'top center',
+  }}
+>
+  <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
+    CARTA ALIR
+  </h4>
+  <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      position: 'relative',
+    }}
+  >
+    <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} />
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+
+    <FlowchartShape id="parallelogram1" shapeType="parallelogram" items={items.parallelogram1} />
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+
+    <FlowchartShape id="parallelogram2" shapeType="parallelogram" items={items.parallelogram2} />
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+
+    <FlowchartShape id="rectangle1" shapeType="rectangle" items={items.rectangle1} />
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+
+    <FlowchartShape id="diamond1" shapeType="diamond" items={items.diamond1} />
+    <div style={{ fontSize: '0.8rem' }}>↓Ya</div>
 
     {/* Rectangle2 & Rectangle3 */}
-    <div style={{ position:'relative', width:'100%', display:'flex', justifyContent:'center' }}>
+    <div style={{ position: 'relative', width: '100%', display: 'flex', justifyContent: 'center' }}>
       <FlowchartShape id="rectangle2" shapeType="rectangle" items={items.rectangle2} />
-      <div style={{ position:'absolute', left:'50%', transform:'translateX(100px) translateY(0)'}}>
+      <div style={{ position: 'absolute', left: '50%', transform: 'translateX(100px) translateY(0)' }}>
         <FlowchartShape id="rectangle3" shapeType="rectangle" items={items.rectangle3} />
       </div>
     </div>
 
-    <div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="parallelogram3" shapeType="parallelogram" items={items.parallelogram3} /><div style={{ fontSize:'0.8rem' }}>↓</div>
-    <FlowchartShape id="diamond2" shapeType="diamond" items={items.diamond2} /><div style={{ fontSize:'0.8rem' }}>↓</div>
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+    <FlowchartShape id="parallelogram3" shapeType="parallelogram" items={items.parallelogram3} />
+    <div style={{ fontSize: '0.8rem' }}>↓</div>
+
+    <FlowchartShape id="diamond2" shapeType="diamond" items={items.diamond2} />
+    <div style={{ fontSize: '0.8rem' }}>↓Tidak</div>
     <FlowchartShape id="oval2" shapeType="oval" items={items.oval2} />
+
+    {/* === Arrows === */}
+    {(() => {
+  // Base offset for tweaking entire arrow position
+  const arrowOffsetX = 100; // moves arrows horizontally
+  const arrowOffsetY = 200; // moves arrows vertically
+
+  // Arrow configurations (adjust top, horizontal, vertical as needed)
+  const arrows = {
+    arrow1: {
+      // Diamond1 → Rectangle3
+      top: 220 + arrowOffsetY,
+      horizontal: 100,
+      vertical: 50,
+      label: 'Tidak',
+      labelOffset: -15,
+    },
+    arrow2: {
+      // Rectangle3 → Parallelogram3
+      top: 350 + arrowOffsetY,
+      horizontal: 100,
+      vertical: 50,
+      label: '',
+    },
+    arrow3: {
+      // Diamond2 → Parallelogram1 (left/up/right)
+      top: 500 + arrowOffsetY,
+      horizontal: 20,
+      vertical: 580,
+      label: 'Ya',
+      labelOffset: -15,
+    },
+  };
+
+  // Arrowhead size
+  const arrowHeadSize = 6;
+
+  // Helper for arrowhead
+  const ArrowHead = ({ top, left, direction }) => {
+    // direction: 'down', 'up', 'left', 'right'
+    const rotation = {
+      down: '0deg',
+      up: '180deg',
+      left: '-90deg',
+      right: '90deg',
+    }[direction];
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: `${top}px`,
+          left: `${left}px`,
+          width: 0,
+          height: 0,
+          borderLeft: `${arrowHeadSize}px solid transparent`,
+          borderRight: `${arrowHeadSize}px solid transparent`,
+          borderBottom: `${arrowHeadSize}px solid #ffffffff`,
+          transform: `rotate(${rotation})`,
+        }}
+      />
+    );
+  };
+
+  return (
+    <>
+      {/* Arrow 1: Diamond1 → Rectangle3 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow1.top}px`,
+          left: `calc(50% + ${arrowOffsetX}px)`,
+          width: `${arrows.arrow1.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow1.top}px`,
+          left: `calc(50% + ${arrowOffsetX + arrows.arrow1.horizontal}px)`,
+          width: '1px',
+          height: `${arrows.arrow1.vertical}px`,
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <ArrowHead
+        top={arrows.arrow1.top + arrows.arrow1.vertical}
+        left={70 + arrowOffsetX + arrows.arrow1.horizontal} // 50% base
+        direction="up"
+      />
+      <span
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow1.top + arrows.arrow1.labelOffset}px`,
+          left: `calc(50% + ${arrowOffsetX + arrows.arrow1.horizontal / 4}px)`,
+          fontSize: '0.7rem',
+          color: '#ffffffff',
+        }}
+      >
+        {arrows.arrow1.label}
+      </span>
+
+      {/* Arrow 2: Rectangle3 → Parallelogram3 */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow2.top}px`,
+          left: `calc(50% + ${arrowOffsetX + arrows.arrow2.horizontal}px)`,
+          width: '1px',
+          height: `${arrows.arrow2.vertical}px`,
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow2.top + arrows.arrow2.vertical}px`,
+          left: `calc(50% + ${arrowOffsetX}px)`,
+          width: `${arrows.arrow2.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <ArrowHead
+        top={-2 + arrows.arrow2.top + arrows.arrow2.vertical}
+        left={70 + arrowOffsetX} // end of horizontal line
+        direction="left"
+      />
+
+      {/* Arrow 3: Diamond2 → Parallelogram1 (left/up/right) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow3.top}px`,
+          left: `calc(50% - ${arrowOffsetX}px)`,
+          width: `${arrows.arrow3.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow3.top - arrows.arrow3.vertical}px`,
+          left: `calc(50% - ${arrowOffsetX}px)`,
+          width: '1px',
+          height: `${arrows.arrow3.vertical}px`,
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow3.top - arrows.arrow3.vertical}px`,
+          left: `calc(38% - ${arrowOffsetX - arrows.arrow3.horizontal}px)`,
+          width: `${arrows.arrow3.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <ArrowHead
+        top={-2 + arrows.arrow3.top - arrows.arrow3.vertical}
+        left={70 - arrowOffsetX + arrows.arrow3.horizontal} // adjust for horizontal end
+        direction="right"
+      />
+      <span
+        style={{
+          position: 'absolute',
+          top: `${arrows.arrow3.top + arrows.arrow3.labelOffset}px`,
+          left: `calc(50% - ${arrowOffsetX - arrows.arrow3.horizontal / 2}px)`,
+          fontSize: '0.7rem',
+          color: '#ffffffff',
+        }}
+      >
+        {arrows.arrow3.label}
+      </span>
+    </>
+  );
+})()}
+
   </div>
 </div>
+
 
         </div>
 
