@@ -247,6 +247,32 @@ html, body, #root {
 .output-table .fail { background-color: #5a2e2e; }
 .output-table .pass { background-color: #2e5a3e; }
 
+.debug-answer-box {
+  border: 2px dashed #79f8f8;
+  padding: 15px;
+  width: 48%;
+  background-color: rgba(0, 0, 0, 0.2);
+  text-align: left; /* everything left by default */
+}
+
+/* only the heading centered */
+.debug-answer-box .debug-title {
+  text-align: center;
+  font-weight: bold;
+}
+
+
+/* Make both titles look the same */
+.pseudocode-box h4,
+.debug-answer-box h4 {
+  text-align: center;
+  font-weight: bold;
+  font-size: 2.5vmin;   /* tweak this if one looked larger/smaller before */
+  margin: 0 0 10px 0;
+}
+
+
+
 /* --- Mission Complete Screen --- */
 .complete-screen {
     display: flex; flex-direction: column; align-items: center;
@@ -436,4 +462,13 @@ html, body, #root {
   padding: 20px;
   box-sizing: border-box;
   overflow-x: auto; /* in case wide content */
+}
+
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }

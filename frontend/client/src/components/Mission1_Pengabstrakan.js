@@ -273,43 +273,34 @@ Tugas anda ialah memilih dan menyusun maklumat penting supaya proses pendaftaran
 
       {/* Buttons aligned to the RIGHT */}
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '10px',
-          marginTop: '10px',
-        }}
-      >
-        <button
-          onClick={handleReset}
-          className="primary-button"
-          style={{ width: 'auto' }}
-        >
-          Buat Semula
-        </button>
+  style={{
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 20,
+  }}
+>
+  <button className="primary-button" onClick={handleReset}>
+    Buat Semula
+  </button>
 
-        <button
-          onClick={checkAnswer}
-          className="primary-button"
-          style={{ width: 'auto' }}
-        >
-          Semak Jawapan
-        </button>
+  <button className="primary-button" onClick={checkAnswer}>
+    Semak Jawapan
+  </button>
 
-        <button
-          onClick={isCorrect ? onContinue : undefined}
-          className="primary-button"
-          style={{
-            width: 'auto',
-            backgroundColor: '#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed',
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+  <button
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+    onClick={isCorrect ? onContinue : undefined}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }

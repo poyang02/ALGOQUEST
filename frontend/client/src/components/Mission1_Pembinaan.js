@@ -113,35 +113,34 @@ function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
       <hr />
 
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '10px',
-          marginTop: '10px',
-        }}
-      >
-        <button onClick={reset} className="primary-button" style={{ width: 'auto' }}>
-          Buat Semula
-        </button>
+  style={{
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 10,
+    marginTop: 20,
+  }}
+>
+  <button onClick={reset} className="primary-button">
+    Buat Semula
+  </button>
 
-        <button onClick={checkAnswer} className="primary-button" style={{ width: 'auto' }}>
-          Semak Jawapan
-        </button>
+  <button onClick={checkAnswer} className="primary-button">
+    Semak Jawapan
+  </button>
 
-        <button
-          onClick={handleNext}
-          className="primary-button"
-          style={{
-            width: 'auto',
-            backgroundColor: '#2ecc71',
-            opacity: isCorrect ? 1 : 0.5,
-            cursor: isCorrect ? 'pointer' : 'not-allowed',
-          }}
-          disabled={!isCorrect}
-        >
-          Seterusnya
-        </button>
-      </div>
+  <button
+    className="primary-button"
+    style={{
+      backgroundColor: isCorrect ? '#2ecc71' : '#999',
+      cursor: isCorrect ? 'pointer' : 'not-allowed',
+    }}
+    disabled={!isCorrect}
+    onClick={isCorrect ? handleNext : undefined}
+  >
+    Seterusnya
+  </button>
+</div>
+
     </div>
   );
 }
