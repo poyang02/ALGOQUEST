@@ -319,120 +319,194 @@ Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
           </div>
 
           {/* RIGHT: Carta Alir */}
-          <div
-            className="flowchart-boxes"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              position: 'relative',
-            }}
-          >
-            <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
-              CARTA ALIR
-            </h4>
+<div
+  className="flowchart-boxes"
+  style={{
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    position: 'relative',
+  }}
+>
+  <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
+    CARTA ALIR
+  </h4>
 
-            <div
-              className="flowchart-diagram"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                position: 'relative',
-              }}
-            >
-              {/* Main vertical line */}
-              <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} />
-              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+  <div
+    className="flowchart-diagram"
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      position: 'relative',
+    }}
+  >
+    {/* Main vertical line */}
+    <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} />
+    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
 
-              <FlowchartShape
-                id="parallelogram1"
-                shapeType="parallelogram"
-                items={items.parallelogram1}
-              />
-              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+    <FlowchartShape
+      id="parallelogram1"
+      shapeType="parallelogram"
+      items={items.parallelogram1}
+    />
+    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
 
-              <FlowchartShape
-                id="diamond1"
-                shapeType="diamond"
-                items={items.diamond1}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  margin: '2px 0',
-                  fontSize: '0.7rem',
-                }}
-              >
-                <span>Ya</span>
-                <span>↓</span>
-              </div>
+    <FlowchartShape id="diamond1" shapeType="diamond" items={items.diamond1} />
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        margin: '2px 0',
+        fontSize: '0.7rem',
+      }}
+    >
+      <span>Ya</span>
+      <span>↓</span>
+    </div>
 
-              <FlowchartShape
-                id="diamond2"
-                shapeType="diamond"
-                items={items.diamond2}
-              />
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  margin: '2px 0',
-                  fontSize: '0.7rem',
-                }}
-              >
-                <span>Ya</span>
-                <span>↓</span>
-              </div>
+    <FlowchartShape id="diamond2" shapeType="diamond" items={items.diamond2} />
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        margin: '2px 0',
+        fontSize: '0.7rem',
+      }}
+    >
+      <span>Ya</span>
+      <span>↓</span>
+    </div>
 
-              {/* Rectangle1 in main line + Rectangle2 branching to the right */}
-              <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                }}
-              >
-                {/* Rectangle1 stays in the main column (center) */}
-                <FlowchartShape
-                  id="rectangle1"
-                  shapeType="rectangle"
-                  items={items.rectangle1}
-                />
+    {/* Branch arrows from diamonds to rectangle2 */}
+    <div style={{ position: 'relative', width: '100%', height: '0px' }}>
+      {(() => {
+  // === Arrow configuration ===
+  const baseLeftOffset = 70; // <-- shift everything right by 20px
+  const arrowConfig = {
+    diamond1: { top: -200, horizontal: 80, vertical: 150 },
+    diamond2: { top: -70, horizontal: 80, vertical: 70 },
+  };
+  return (
+    <>
+      {/* Diamond1 arrow */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond1.top}px`,
+          left: `calc(50% + ${baseLeftOffset}px)`,
+          width: `${arrowConfig.diamond1.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond1.top}px`,
+          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal}px)`,
+          width: '1px',
+          height: `${arrowConfig.diamond1.vertical}px`,
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <span
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond1.top - 15}px`,
+          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal / 4}px)`,
+          fontSize: '0.7rem',
+          color: '#ffffffff',
+        }}
+      >
+        Tidak
+      </span>
 
-                {/* Rectangle2 appears to the right, in its own invisible column */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: '50%',
-                    transform: 'translateX(80px)', // adjust 180px to move further/closer
-                    top: '50%',
-                    translate: '0 -50%',
-                  }}
-                >
-                  <FlowchartShape
-                    id="rectangle2"
-                    shapeType="rectangle"
-                    items={items.rectangle2}
-                  />
-                </div>
-              </div>
+      {/* Diamond2 arrow */}
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond2.top}px`,
+          left: `calc(50% + ${baseLeftOffset}px)`,
+          width: `${arrowConfig.diamond2.horizontal}px`,
+          height: '1px',
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond2.top}px`,
+          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal}px)`,
+          width: '1px',
+          height: `${arrowConfig.diamond2.vertical}px`,
+          backgroundColor: '#ffffffff',
+        }}
+      />
+      <span
+        style={{
+          position: 'absolute',
+          top: `${arrowConfig.diamond2.top - 15}px`,
+          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal / 4}px)`,
+          fontSize: '0.7rem',
+          color: '#ffffffff',
+        }}
+      >
+        Tidak
+      </span>
+    </>
+  );
+})()}
 
-              {/* Continue main vertical line below Rectangle1 */}
-              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
-              <FlowchartShape
-                id="parallelogram2"
-                shapeType="parallelogram"
-                items={items.parallelogram2}
-              />
-              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
-              <FlowchartShape id="oval2" shapeType="oval" items={items.oval2} />
-            </div>
-          </div>
+    </div>
+
+    {/* Rectangle1 in main line + Rectangle2 branching to the right */}
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <FlowchartShape
+        id="rectangle1"
+        shapeType="rectangle"
+        items={items.rectangle1}
+      />
+
+      {/* Rectangle2 appears to the right */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          transform: 'translateX(80px) translateY(-50%)', // tweak X offset here
+          top: '50%',
+        }}
+      >
+        <FlowchartShape
+          id="rectangle2"
+          shapeType="rectangle"
+          items={items.rectangle2}
+        />
+      </div>
+    </div>
+
+    {/* Continue main vertical line below Rectangle1 */}
+    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+    <FlowchartShape
+      id="parallelogram2"
+      shapeType="parallelogram"
+      items={items.parallelogram2}
+    />
+    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+    <FlowchartShape id="oval2" shapeType="oval" items={items.oval2} />
+  </div>
+</div>
+
+
         </div>
 
         <DragOverlay>
