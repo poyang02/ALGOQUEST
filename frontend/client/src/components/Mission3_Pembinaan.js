@@ -204,10 +204,10 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
       <hr />
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-        <div style={{ display: 'flex', gap: '40px', justifyContent: 'center', alignItems: 'stretch', marginTop: '20px' }}>
+        <div style={{ display: 'flex', gap: '100px', justifyContent: 'center', alignItems: 'stretch', marginTop: '20px' }}>
           {/* Pseudocode */}
-          <div style={{ width: '320px', backgroundColor: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '8px', display: 'flex', flexDirection: 'column' }}>
-            <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>PSEUDOKOD</h4>
+          <div style={{ width: '320px', backgroundColor: 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '8px', display: 'flex', flexDirection: 'column' }}>
+            <h4 style={{ marginTop: 10, textAlign: 'center', color: '#00ffff' }}>PSEUDOKOD</h4>
             <SortableContext items={items.available.map(i => i.id)} strategy={verticalListSortingStrategy}>
               <div style={{ flexGrow: 1 }}>
                 {items.available.map(item => <SortableItem key={item.id} id={item.id} content={item.content} />)}
@@ -226,7 +226,7 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     transformOrigin: 'top center',
   }}
 >
-  <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
+  <h4 style={{ marginTop: 25, textAlign: 'center', color: '#00ffff' }}>
     CARTA ALIR
   </h4>
   <div
