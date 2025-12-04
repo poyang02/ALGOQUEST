@@ -11,7 +11,6 @@ const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "a_super_secret_key_that_should_be_in_an_env_file";
 
 // 2. Configure Database Connection (Smart Switch)
-// If we have a DATABASE_URL env var, we are on Render.
 const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
 
 const pool = new Pool(
@@ -19,15 +18,14 @@ const pool = new Pool(
     ? {
         connectionString: process.env.DATABASE_URL,
         ssl: {
-          rejectUnauthorized: false, // Required for Render's secure connection
+          rejectUnauthorized: false,
         },
       }
     : {
         user: 'postgres',
         host: 'localhost',
         database: 'algoquest',
-        // 🚨 REMINDER: Make sure to use your actual password here for local testing!
-        password: '61212611414142002', 
+        password: '61212611414142002',
         port: 5432,
       }
 );
@@ -129,6 +127,91 @@ app.post('/api/progress', authenticateToken, async (req, res) => {
     res.status(500).send("Server error");
   }
 });
+
+
+
+// =======================================================
+// ⭐ NEW SYSTEM FOR ATTEMPTS, MARKS, BADGES
+// =======================================================
+app.post("/api/mission/submit", authenticateToken, async (req, res) => {
+  try {
+    const { mission, phase, isCorrect } = req.body;
+    const userId = req.user.id;
+
+    // -------- 1) GET CURRENT ATTEMPT NUMBER ----------
+    const attemptCountResult = await pool.query(
+      `SELECT COUNT(*) AS count 
+       FROM mission_attempts 
+       WHERE user_id=$1 AND mission=$2 AND phase=$3`,
+      [userId, mission, phase]
+    );
+
+    const attemptNumber = Number(attemptCountResult.rows[0].count) + 1;
+
+    // -------- 2) CALCULATE SCORE ----------
+    let score = 0;
+    if (isCorrect) {
+      // First try = 25 marks
+      if (attemptNumber === 1) score = 25;
+      else score = Math.max(25 - (attemptNumber - 1) * 5, 5); // never below 5
+    }
+
+    // -------- 3) SAVE ATTEMPT ----------
+    await pool.query(
+      `INSERT INTO mission_attempts 
+        (user_id, mission, phase, attempt_number, correct, score)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userId, mission, phase, attemptNumber, isCorrect, score]
+    );
+
+    // -------- 4) UPDATE BEST SCORE (ONE ROW PER PHASE) ----------
+    await pool.query(
+      `INSERT INTO mission_scores (user_id, mission, phase, score)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id, mission, phase)
+       DO UPDATE SET score = GREATEST(mission_scores.score, EXCLUDED.score),
+                     updated_at = now()`,
+      [userId, mission, phase, score]
+    );
+
+    // -------- 5) GIVE BADGE (ONLY IF FIRST TRY & CORRECT) ----------
+    if (isCorrect && attemptNumber === 1) {
+      if (phase === "pembinaan") {
+        await pool.query(
+          `INSERT INTO user_badges (user_id, badge)
+           VALUES ($1, 'pembinaan-master')
+           ON CONFLICT (user_id, badge) DO NOTHING`,
+          [userId]
+        );
+      }
+
+      if (phase === "penyahpepijat") {
+        await pool.query(
+          `INSERT INTO user_badges (user_id, badge)
+           VALUES ($1, 'debugging-master')
+           ON CONFLICT (user_id, badge) DO NOTHING`,
+          [userId]
+        );
+      }
+    }
+
+    res.json({
+      status: "ok",
+      message: "Attempt saved",
+      attemptNumber,
+      scoreGiven: score
+    });
+
+  } catch (err) {
+    console.error("MISSION SUBMIT ERROR:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+// =======================================================
+
+
 
 // 3. Update the listen command to use the dynamic port
 app.listen(port, () => {
