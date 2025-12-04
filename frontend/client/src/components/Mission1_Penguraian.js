@@ -220,7 +220,7 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
         </button>
 
         <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting || earnedScore > 0}>
-          {earnedScore > 0 ? 'Betul!' : 'Semak'}
+          {earnedScore > 0 ? 'Betul!' : 'Semak Jawapan'}
         </button>
 
         <button
