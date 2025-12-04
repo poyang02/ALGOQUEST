@@ -49,7 +49,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       { id: 'item-2', content: 'Markah PA' },
       { id: 'item-3', content: 'Tentukan Gred' },
       { id: 'item-4', content: 'Gred Huruf' },
-      { id: 'item-5', content: 'Kehadiran (%)' },
+      { id: 'item-5', content: 'Kehadiran (%)' }, // Fixed from 'No Pendaftaran' to match correct logic
       { id: 'item-6', content: 'Semak Syarat Lulus' },
       { id: 'item-7', content: 'Status Lulus' },
       { id: 'item-8', content: 'Markah PB' },
@@ -61,6 +61,11 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
 
   const [activeId, setActiveId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  
+  // Backend Integration State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function findContainer(itemId) {
     if (!itemId) return null;
@@ -89,6 +94,9 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       setActiveId(null);
       return;
     }
+    
+    // Reset correct state if user moves items after checking
+    setIsCorrect(false);
 
     if (activeContainer !== overContainer) {
       setItems(prev => {
@@ -120,11 +128,10 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       });
     }
     setActiveId(null);
-    setIsCorrect(false);
   }
 
-  // ✅ Updated to use onFeedback for glow
-  const checkAnswer = () => {
+  // ✅ Updated to use Backend Scoring
+  const checkAnswer = async () => {
     const correctInput = ['item-2', 'item-5', 'item-8'].sort();
     const correctProses = ['item-1', 'item-3', 'item-6'].sort();
     const correctOutput = ['item-4', 'item-7'].sort();
@@ -133,24 +140,50 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
     const playerProses = items.proses.map(i => i.id).sort();
     const playerOutput = items.output.map(i => i.id).sort();
 
-    if (
+    const ok =
       JSON.stringify(playerInput) === JSON.stringify(correctInput) &&
       JSON.stringify(playerProses) === JSON.stringify(correctProses) &&
-      JSON.stringify(playerOutput) === JSON.stringify(correctOutput)
-    ) {
+      JSON.stringify(playerOutput) === JSON.stringify(correctOutput);
+
+    if (!ok) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        onFeedback('❌ Hmm, semak semula. (-5 Markah)', 3000, 'error'); // Red Glow 'error'
+        return;
+    }
+
+    // Correct: Calculate Score
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+
+    setIsSubmitting(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 2,
+          phase: 'penguraian',
+          isCorrect: true,
+          score: calculatedScore,
+          badge: null
+        })
+      });
+
+      setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      onFeedback(
-        '✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul. Sistem kini boleh menjana keputusan pelajar!',
-        3000,
-        true
-      );
-    } else {
-      setIsCorrect(false);
-      onFeedback(
-        '❌ Hmm, semak semula. Adakah semua kad dalam Proses benar-benar menunjukkan langkah kerja sistem?',
-        3000,
-        false
-      );
+      // Green Glow 'success'
+      onFeedback(`✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul. (+${calculatedScore} Markah)`, 3000, 'success');
+
+    } catch (err) {
+      console.error("Error submitting:", err);
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -161,7 +194,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
         { id: 'item-2', content: 'Markah PA' },
         { id: 'item-3', content: 'Tentukan Gred' },
         { id: 'item-4', content: 'Gred Huruf' },
-        { id: 'item-5', content: 'No Pendaftaran' },
+        { id: 'item-5', content: 'Kehadiran (%)' },
         { id: 'item-6', content: 'Semak Syarat Lulus' },
         { id: 'item-7', content: 'Status Lulus' },
         { id: 'item-8', content: 'Markah PB' },
@@ -171,12 +204,13 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       output: [],
     });
     setIsCorrect(false);
-    onFeedback('🔄 Susunan telah direset. Cuba semula.', 2000, null);
+    setAttempts(0); // Reset attempts
+    onFeedback('🔄 Susunan telah direset. Cuba semula.', 2000, 'neutral');
   };
 
   const handleNext = () => {
     if (!isCorrect) return;
-    onContinue();
+    onContinue(earnedScore); // Pass earned score
   };
 
   const activeItem = activeId ? [...items.available, ...items.input, ...items.proses, ...items.output].find(i => i.id === activeId) : null;
@@ -206,27 +240,26 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
 
       {/* Buttons */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-  <button className="primary-button" onClick={reset}>
-    Buat Semula
-  </button>
+        <button className="primary-button" onClick={reset} disabled={isSubmitting}>
+          Buat Semula
+        </button>
 
-  <button className="primary-button" onClick={checkAnswer}>
-    Semak Jawapan
-  </button>
+        <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting}>
+          {isSubmitting ? 'Menghantar...' : 'Semak Jawapan'}
+        </button>
 
-  <button
-    className="primary-button"
-    style={{
-      backgroundColor: isCorrect ? '#2ecc71' : '#999',
-      cursor: isCorrect ? 'pointer' : 'not-allowed',
-    }}
-    disabled={!isCorrect}
-    onClick={isCorrect ? handleNext : undefined}
-  >
-    Seterusnya
-  </button>
-</div>
-
+        <button
+          className="primary-button"
+          style={{
+            backgroundColor: isCorrect ? '#2ecc71' : '#999',
+            cursor: isCorrect ? 'pointer' : 'not-allowed',
+          }}
+          disabled={!isCorrect}
+          onClick={isCorrect ? handleNext : undefined}
+        >
+          Seterusnya
+        </button>
+      </div>
     </div>
   );
 }

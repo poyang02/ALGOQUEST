@@ -6,84 +6,125 @@ import Mission1_Pembinaan from './Mission1_Pembinaan';
 import Mission1_Penyahpepijat from './Mission1_Penyahpepijat';
 import Mission1_Complete from './Mission1_Complete';
 
+const ROBOT_TEXTS = {
+  penguraian: "Hai! Mari kita bantu Kampus Digital mengenal pasti semula Input, Proses, dan Output dalam modul pendaftaran pelajar. Seret setiap item ke tempat yang betul!",
+  pengabstrakan: "Klik dan seret maklumat penting ke ruangan Maklumat Penting. Kemudian, susun langkah pendaftaran di bahagian kanan supaya sistem berfungsi dengan betul!",
+  pembinaan: "Klik anak panah ➡️ untuk pindahkan langkah ke kotak algoritma. Bila semua langkah dah pindah, guna anak panah ⬆️ dan ⬇️ untuk susun ikut urutan jujukan.",
+  penyahpepijat: "Hmm... nampaknya sistem cetak slip dulu sebelum daftar kursus. Susun semula langkah dengan isi nombor urutan yang betul ya!",
+  complete: "Kerja yang bagus! Sistem pendaftaran pelajar telah dipulihkan. Anda boleh kembali ke Kampus Digital."
+};
+
 function Mission1({ onMissionComplete }) {
   const [missionPhase, setMissionPhase] = useState('penguraian');
-  const [score, setScore] = useState(0);
-  const [feedbackText, setFeedbackText] = useState('');
-  const [badges, setBadges] = useState([]);
-
-  // ⭐ NEW — global correctness state for robot glow
+  const [totalScore, setTotalScore] = useState(0);
+  const [robotText, setRobotText] = useState(ROBOT_TEXTS['penguraian']);
   const [isCorrect, setIsCorrect] = useState(null);
+  const [earnedBadges, setEarnedBadges] = useState([]);
 
-  const handleFeedback = (message, duration = 3000, correctState = null) => {
-    setFeedbackText(message);
+  // --------------------------
+  // Glow & feedback function
+  // --------------------------
+  const onFeedback = (text, duration = 3000, correctState = null) => {
+    setRobotText(text);
 
-    // ⭐ update robot glow color (green/red)
-    setIsCorrect(correctState);
+    let status = correctState;
+    if (correctState === true) status = 'success';
+    if (correctState === false) status = 'error';
+
+    setIsCorrect(status);
 
     setTimeout(() => {
-      setFeedbackText('');
-      setIsCorrect(null); // Reset glow after fade
+      setIsCorrect(null);
+      setRobotText(ROBOT_TEXTS[missionPhase]);
     }, duration);
   };
 
-  const handleContinue = (nextPhase, points = 0, earnedBadge = null) => {
-    setScore(prev => prev + points);
-    if (earnedBadge) setBadges(prev => [...prev, earnedBadge]);
+  // --------------------------
+  // NEW Unified Backend Submit
+  // --------------------------
+  const submitPhaseToBackend = async (phaseName, isCorrectAnswer, score, badge) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      await fetch("https://algoquest-api.onrender.com/api/mission/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mission: 1,
+          phase: phaseName,
+          isCorrect: isCorrectAnswer,
+          score: score,
+          badge: badge
+        })
+      });
+    } catch (e) {
+      console.error("Submit mission data failed", e);
+    }
+  };
+
+  // --------------------------
+  // Phase Completion Handler
+  // --------------------------
+  const handlePhaseComplete = (nextPhase, scoreEarned, badgeEarned = null) => {
+
+    const isCorrectAnswer = scoreEarned > 0; // scoring logic basis
+
+    submitPhaseToBackend(missionPhase, isCorrectAnswer, scoreEarned, badgeEarned);
+
+    setTotalScore(prev => prev + scoreEarned);
+
+    if (badgeEarned) {
+      setEarnedBadges(prev => [...prev, badgeEarned]);
+    }
+
     setMissionPhase(nextPhase);
-    setFeedbackText('');
+    setRobotText(ROBOT_TEXTS[nextPhase]);
     setIsCorrect(null);
   };
 
-  const robotTexts = {
-    penguraian:
-      "Hai! Mari kita bantu Kampus Digital mengenal pasti semula Input, Proses, dan Output dalam modul pendaftaran pelajar.Seret setiap item ke tempat yang betul supaya aliran data pelajar lengkap dan teratur!",
-    pengabstrakan:
-      "Klik dan seret maklumat penting ke ruangan Maklumat Penting. Kemudian, susun langkah pendaftaran di bahagian kanan supaya sistem berfungsi dengan betul!",
-    pembinaan:
-      "Klik anak panah ➡️ untuk pindahkan langkah ke kotak algoritma. Bila semua langkah dah pindah, guna anak panah ⬆️ dan ⬇️ untuk susun ikut urutan jujukan.",
-    penyahpepijat:
-      "Hmm... nampaknya sistem cetak slip dulu sebelum daftar kursus. Susun semula langkah dengan isi nombor urutan yang betul ya!",
-    complete:
-      "Kerja yang bagus! Sistem pendaftaran pelajar telah dipulihkan. Anda boleh kembali ke Kampus Digital."
-  };
-
+  // --------------------------
+  // Render Current Phase
+  // --------------------------
   const renderPhase = () => {
     switch (missionPhase) {
       case 'penguraian':
         return (
           <Mission1_Penguraian
-            onContinue={() => handleContinue('pengabstrakan', 25)}
-            onFeedback={handleFeedback}
+            onContinue={(score) => handlePhaseComplete('pengabstrakan', score)}
+            onFeedback={onFeedback}
           />
         );
       case 'pengabstrakan':
         return (
           <Mission1_Pengabstrakan
-            onContinue={() => handleContinue('pembinaan', 25)}
-            onFeedback={handleFeedback}
+            onContinue={(score) => handlePhaseComplete('pembinaan', score)}
+            onFeedback={onFeedback}
           />
         );
       case 'pembinaan':
         return (
           <Mission1_Pembinaan
-            onContinue={() => handleContinue('penyahpepijat', 25, 'Master Algoritma')}
-            onFeedback={handleFeedback}
+            onContinue={(score, badge) => handlePhaseComplete('penyahpepijat', score, badge)}
+            onFeedback={onFeedback}
           />
         );
       case 'penyahpepijat':
         return (
           <Mission1_Penyahpepijat
-            onContinue={() => handleContinue('complete', 25, 'Master Pemulih Logik')}
-            onFeedback={handleFeedback}
+            onContinue={(score, badge) => handlePhaseComplete('complete', score, badge)}
+            onFeedback={onFeedback}
           />
         );
       case 'complete':
         return (
           <Mission1_Complete
-            score={score}
-            badges={badges}
-            onContinue={() => onMissionComplete(score)}
+            score={totalScore}
+            badges={earnedBadges}
+            onContinue={() => onMissionComplete(totalScore, earnedBadges)}
           />
         );
       default:
@@ -93,8 +134,8 @@ function Mission1({ onMissionComplete }) {
 
   return (
     <MissionLayout
-      robotText={feedbackText || robotTexts[missionPhase]}
-      isCorrect={isCorrect} // ⭐ SEND glow status to layout
+      robotText={robotText}
+      robotStatus={isCorrect}
     >
       {renderPhase()}
     </MissionLayout>

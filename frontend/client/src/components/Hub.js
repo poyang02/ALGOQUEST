@@ -10,6 +10,14 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
     const [progress, setProgress] = useState({});
     const [progressPercent, setProgressPercent] = useState(0);
 
+    // Handler to play sound and start mission
+    const handleMissionStart = (startFunction) => {
+        try { playClickSound(); } catch (e) { }
+        if (typeof startFunction === 'function') {
+            startFunction();
+        }
+    };
+
     useEffect(() => {
         const fetchUserAndProgress = async () => {
             const token = localStorage.getItem('token');
@@ -21,7 +29,7 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        setUser(data);
+                        setUser(data); 
                     } else {
                         localStorage.removeItem('token');
                         navigate('/login', { replace: true });
@@ -41,10 +49,11 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
 
                     const data = await response.json();
                     const progressData = {};
+                    
                     for (const record of data) {
                         progressData[record.mission_id] = {
                             score: record.score,
-                            badges: record.badges || [],
+                            badges: record.badges || [] 
                         };
                     }
                     setProgress(progressData);
@@ -60,10 +69,10 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
         fetchUserAndProgress();
     }, [user, navigate]);
 
-    const getScore = (missionId) =>
+    const getScore = (missionId) => 
         progress[missionId]?.score !== undefined ? progress[missionId].score : '-';
 
-    const isMissionCompleted = (missionId) =>
+    const isMissionCompleted = (missionId) => 
         progress[missionId]?.score !== undefined;
 
     const getStatus = (missionId) => {
@@ -71,64 +80,66 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
         return { text: 'Belum Selesai', color: '#f39c12' };
     };
 
-    // ✅ NEW: Completed mission → show these 2 titles (no emoji, no word "Lencana")
+    // ✅ FIXED: Specific Badge Mapping for Each Mission
     const getBadges = (missionId) => {
-        const missionProgress = progress[missionId];
+        // The backend sends ALL user badges in every record. 
+        // We grab the list from the current mission object (or any object, they are the same list).
+        const allBadges = progress[missionId]?.badges || [];
 
-        // No attempt / no score → no title
-        if (!missionProgress || missionProgress.score === undefined) {
-            return '-';
+        if (allBadges.length === 0) return '-';
+
+        const displayList = [];
+
+        // Check specifically for badges belonging to THIS mission
+        if (missionId === 'mission1') {
+            // Check for new format AND old format (for compatibility)
+            if (allBadges.includes('mission1-pembinaan-master') || allBadges.includes('pembinaan-master')) {
+                displayList.push('Master Algoritma');
+            }
+            if (allBadges.includes('mission1-debugging-master') || allBadges.includes('debugging-master')) {
+                displayList.push('Master Pemulih Logik');
+            }
+        } 
+        else if (missionId === 'mission2') {
+            if (allBadges.includes('mission2-pembinaan-master')) displayList.push('Master Carta Alir');
+            if (allBadges.includes('mission2-debugging-master')) displayList.push('Master Pemulih Logik');
+        }
+        else if (missionId === 'mission3') {
+            if (allBadges.includes('mission3-pembinaan-master')) displayList.push('Master Algoritma');
+            if (allBadges.includes('mission3-debugging-master')) displayList.push('Master Pemulih Logik');
         }
 
-        // Fixed titles when completed
-        return [
-            'Master Algoritma',
-            'Master Pemulih Logik',
-        ].join(' | ');
+        if (displayList.length === 0) return '-';
+
+        // Remove duplicates and join
+        return [...new Set(displayList)].join(' | ');
     };
 
-    const userName = user?.name || 'Wira';
-
-    const handleButtonClick = async (callback) => {
-        await playClickSound();
-        callback();
-    };
+    const userName = user?.name || 'Wira'; 
 
     const renderMissionCard = (title, description, missionId, onStart) => {
         const status = getStatus(missionId);
         const badgesDisplay = getBadges(missionId);
 
         return (
-            <div
-                className="mission-card"
-                style={{ textAlign: 'center' }}
-                onMouseEnter={playHoverSound}
-            >
+            <div className="mission-card" style={{ textAlign: 'center' }} onMouseEnter={playHoverSound}>
                 <h3>{title}</h3>
                 <p style={{ textAlign: 'center' }}>{description}</p>
-                <p style={{ textAlign: 'center' }}>📊 Markah: {getScore(missionId)}</p>
-                <p style={{ textAlign: 'center' }}>🏅 Lencana: {badgesDisplay}</p>
-
+                <p style={{ textAlign: 'center' }}>📊Markah: {getScore(missionId)}</p>
+                <p style={{ textAlign: 'center' }}>🏅Lencana: {badgesDisplay}</p>
+                
                 <div
                     className="status"
                     style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        fontWeight: 'bold',
-                        fontSize: '1.5vmin',
-                        justifyContent: 'center',
-                        margin: '10px 0',
+                        display: 'flex', alignItems: 'center', gap: '8px', 
+                        fontWeight: 'bold', fontSize: '1.5vmin', justifyContent: 'center', margin: '10px 0',
                     }}
                 >
                     <span
                         className="status-circle"
                         style={{
-                            width: '16px',
-                            height: '16px',
-                            borderRadius: '50%',
-                            backgroundColor: status.color,
-                            display: 'inline-block',
+                            width: '16px', height: '16px', borderRadius: '50%',
+                            backgroundColor: status.color, display: 'inline-block',
                             boxShadow: `0 0 6px ${status.color}`,
                             animation: `pulse-${missionId} 2s infinite ease-in-out`,
                         }}
@@ -136,8 +147,8 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
                     <span style={{ lineHeight: '16px' }}>{status.text}</span>
                 </div>
 
-                <button
-                    onClick={() => handleButtonClick(onStart)}
+                <button 
+                    onClick={() => handleMissionStart(onStart)} 
                     onMouseEnter={playHoverSound}
                 >
                     Mulakan Misi
@@ -158,7 +169,7 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
 
     return (
         <div className="game-container">
-            <h2>SELAMAT DATANG KE KAMPUS DIGITAL, {userName}</h2>
+            <h2>SELAMAT DATANG KE KAMPUS DIGITAL, {userName}</h2> 
 
             <div className="progress-bar-container">
                 <div className="progress-fill" style={{ width: `${progressPercent}%` }}>
@@ -192,7 +203,7 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
             <hr style={{ marginTop: '20px' }} />
 
             <button
-                onClick={() => handleButtonClick(onLogout)}
+                onClick={() => handleMissionStart(onLogout)}
                 onMouseEnter={playHoverSound}
                 className="primary-button"
                 style={{ width: '300px', margin: 'auto', backgroundColor: '#c74f4f' }}

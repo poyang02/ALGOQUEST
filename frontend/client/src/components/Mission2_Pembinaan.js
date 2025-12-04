@@ -132,6 +132,11 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   const [activeId, setActiveId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Scoring State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0); // Track attempts locally
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   function findContainer(itemId) {
     if (!itemId) return null;
     if (Object.prototype.hasOwnProperty.call(items, itemId)) return itemId;
@@ -226,10 +231,11 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
       oval2: [],
     });
     setIsCorrect(false);
-    setRobotText?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.');
+    setAttempts(0); // Reset attempts
+    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', 2000, 'neutral');
   };
 
-  const checkAnswer = () => {
+  const checkAnswer = async () => {
     const correctOrder = {
       oval1: 'Mula',
       parallelogram1: 'Masukkan Markah PB, Markah PA',
@@ -245,19 +251,60 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
       return items[slot][0]?.content === text;
     });
 
-    setIsCorrect(isRight);
-    if (isRight) {
-      onFeedback?.('✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan.\n\n' +
-            '🏅 Anda telah memperoleh lencana "Master Algoritma".', 3000, true);
-      onBadgeEarned?.('Master Algoritma');
-    } else {
-      onFeedback?.('❌ Semak semula susunan dalam carta alir.',3000, false);
+    if (!isRight) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        onFeedback?.('❌ Semak semula susunan dalam carta alir. (-5 Markah)', 3000, false);
+        return;
+    }
+
+    // Correct: Calculate Score
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+
+    setIsSubmitting(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 2,
+          phase: 'pembinaan',
+          isCorrect: true,
+          score: calculatedScore,
+          // Award badge if correct on first attempt
+          badge: attempts === 0 ? 'Master Carta Alir' : null
+        })
+      });
+
+      setEarnedScore(calculatedScore);
+      setIsCorrect(true);
+
+      let badgeMsg = '';
+      if (attempts === 0) {
+           badgeMsg = '\n\n🏅 Anda telah memperoleh lencana "Master Carta Alir".';
+           onBadgeEarned?.('Master Carta Alir');
+      }
+
+      onFeedback?.(`✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
+
+    } catch (err) {
+      console.error("Error submitting:", err);
+      onFeedback?.('⚠️ Ralat menghubungi pelayan.', 3000, false);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleNext = () => {
     if (!isCorrect) return;
-    onContinue?.();
+    // Pass score AND badge name to parent
+    const badge = attempts === 0 ? 'Master Carta Alir' : null;
+    onContinue?.(earnedScore, badge);
   };
 
   const allItems = Object.values(items).flat();
@@ -319,194 +366,191 @@ Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
           </div>
 
           {/* RIGHT: Carta Alir */}
-<div
-  className="flowchart-boxes"
-  style={{
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    position: 'relative',
-  }}
->
-  <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
-    CARTA ALIR
-  </h4>
+          <div
+            className="flowchart-boxes"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              position: 'relative',
+            }}
+          >
+            <h4 style={{ marginTop: 0, textAlign: 'center', color: '#00ffff' }}>
+              CARTA ALIR
+            </h4>
 
-  <div
-    className="flowchart-diagram"
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      position: 'relative',
-    }}
-  >
-    {/* Main vertical line */}
-    <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} />
-    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+            <div
+              className="flowchart-diagram"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                position: 'relative',
+              }}
+            >
+              {/* Main vertical line */}
+              <FlowchartShape id="oval1" shapeType="oval" items={items.oval1} />
+              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
 
-    <FlowchartShape
-      id="parallelogram1"
-      shapeType="parallelogram"
-      items={items.parallelogram1}
-    />
-    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+              <FlowchartShape
+                id="parallelogram1"
+                shapeType="parallelogram"
+                items={items.parallelogram1}
+              />
+              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
 
-    <FlowchartShape id="diamond1" shapeType="diamond" items={items.diamond1} />
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        margin: '2px 0',
-        fontSize: '0.7rem',
-      }}
-    >
-      <span>Ya</span>
-      <span>↓</span>
-    </div>
+              <FlowchartShape id="diamond1" shapeType="diamond" items={items.diamond1} />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  margin: '2px 0',
+                  fontSize: '0.7rem',
+                }}
+              >
+                <span>Ya</span>
+                <span>↓</span>
+              </div>
 
-    <FlowchartShape id="diamond2" shapeType="diamond" items={items.diamond2} />
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        margin: '2px 0',
-        fontSize: '0.7rem',
-      }}
-    >
-      <span>Ya</span>
-      <span>↓</span>
-    </div>
+              <FlowchartShape id="diamond2" shapeType="diamond" items={items.diamond2} />
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  margin: '2px 0',
+                  fontSize: '0.7rem',
+                }}
+              >
+                <span>Ya</span>
+                <span>↓</span>
+              </div>
 
-    {/* Branch arrows from diamonds to rectangle2 */}
-    <div style={{ position: 'relative', width: '100%', height: '0px' }}>
-      {(() => {
-  // === Arrow configuration ===
-  const baseLeftOffset = 70; // <-- shift everything right by 20px
-  const arrowConfig = {
-    diamond1: { top: -200, horizontal: 80, vertical: 150 },
-    diamond2: { top: -70, horizontal: 80, vertical: 70 },
-  };
-  return (
-    <>
-      {/* Diamond1 arrow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond1.top}px`,
-          left: `calc(50% + ${baseLeftOffset}px)`,
-          width: `${arrowConfig.diamond1.horizontal}px`,
-          height: '1px',
-          backgroundColor: '#ffffffff',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond1.top}px`,
-          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal}px)`,
-          width: '1px',
-          height: `${arrowConfig.diamond1.vertical}px`,
-          backgroundColor: '#ffffffff',
-        }}
-      />
-      <span
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond1.top - 15}px`,
-          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal / 4}px)`,
-          fontSize: '0.7rem',
-          color: '#ffffffff',
-        }}
-      >
-        Tidak
-      </span>
+              {/* Branch arrows from diamonds to rectangle2 */}
+              <div style={{ position: 'relative', width: '100%', height: '0px' }}>
+                {(() => {
+                  // === Arrow configuration ===
+                  const baseLeftOffset = 70; 
+                  const arrowConfig = {
+                    diamond1: { top: -200, horizontal: 80, vertical: 150 },
+                    diamond2: { top: -70, horizontal: 80, vertical: 70 },
+                  };
+                  return (
+                    <>
+                      {/* Diamond1 arrow */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond1.top}px`,
+                          left: `calc(50% + ${baseLeftOffset}px)`,
+                          width: `${arrowConfig.diamond1.horizontal}px`,
+                          height: '1px',
+                          backgroundColor: '#ffffffff',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond1.top}px`,
+                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal}px)`,
+                          width: '1px',
+                          height: `${arrowConfig.diamond1.vertical}px`,
+                          backgroundColor: '#ffffffff',
+                        }}
+                      />
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond1.top - 15}px`,
+                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal / 4}px)`,
+                          fontSize: '0.7rem',
+                          color: '#ffffffff',
+                        }}
+                      >
+                        Tidak
+                      </span>
 
-      {/* Diamond2 arrow */}
-      <div
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond2.top}px`,
-          left: `calc(50% + ${baseLeftOffset}px)`,
-          width: `${arrowConfig.diamond2.horizontal}px`,
-          height: '1px',
-          backgroundColor: '#ffffffff',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond2.top}px`,
-          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal}px)`,
-          width: '1px',
-          height: `${arrowConfig.diamond2.vertical}px`,
-          backgroundColor: '#ffffffff',
-        }}
-      />
-      <span
-        style={{
-          position: 'absolute',
-          top: `${arrowConfig.diamond2.top - 15}px`,
-          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal / 4}px)`,
-          fontSize: '0.7rem',
-          color: '#ffffffff',
-        }}
-      >
-        Tidak
-      </span>
-    </>
-  );
-})()}
+                      {/* Diamond2 arrow */}
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond2.top}px`,
+                          left: `calc(50% + ${baseLeftOffset}px)`,
+                          width: `${arrowConfig.diamond2.horizontal}px`,
+                          height: '1px',
+                          backgroundColor: '#ffffffff',
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond2.top}px`,
+                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal}px)`,
+                          width: '1px',
+                          height: `${arrowConfig.diamond2.vertical}px`,
+                          backgroundColor: '#ffffffff',
+                        }}
+                      />
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: `${arrowConfig.diamond2.top - 15}px`,
+                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal / 4}px)`,
+                          fontSize: '0.7rem',
+                          color: '#ffffffff',
+                        }}
+                      >
+                        Tidak
+                      </span>
+                    </>
+                  );
+                })()}
+              </div>
 
-    </div>
+              {/* Rectangle1 in main line + Rectangle2 branching to the right */}
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                <FlowchartShape
+                  id="rectangle1"
+                  shapeType="rectangle"
+                  items={items.rectangle1}
+                />
 
-    {/* Rectangle1 in main line + Rectangle2 branching to the right */}
-    <div
-      style={{
-        position: 'relative',
-        width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <FlowchartShape
-        id="rectangle1"
-        shapeType="rectangle"
-        items={items.rectangle1}
-      />
+                {/* Rectangle2 appears to the right */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translateX(80px) translateY(-50%)',
+                    top: '50%',
+                  }}
+                >
+                  <FlowchartShape
+                    id="rectangle2"
+                    shapeType="rectangle"
+                    items={items.rectangle2}
+                  />
+                </div>
+              </div>
 
-      {/* Rectangle2 appears to the right */}
-      <div
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(80px) translateY(-50%)', // tweak X offset here
-          top: '50%',
-        }}
-      >
-        <FlowchartShape
-          id="rectangle2"
-          shapeType="rectangle"
-          items={items.rectangle2}
-        />
-      </div>
-    </div>
-
-    {/* Continue main vertical line below Rectangle1 */}
-    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
-    <FlowchartShape
-      id="parallelogram2"
-      shapeType="parallelogram"
-      items={items.parallelogram2}
-    />
-    <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
-    <FlowchartShape id="oval2" shapeType="oval" items={items.oval2} />
-  </div>
-</div>
-
-
+              {/* Continue main vertical line below Rectangle1 */}
+              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+              <FlowchartShape
+                id="parallelogram2"
+                shapeType="parallelogram"
+                items={items.parallelogram2}
+              />
+              <div style={{ margin: '2px 0', fontSize: '0.8rem' }}>↓</div>
+              <FlowchartShape id="oval2" shapeType="oval" items={items.oval2} />
+            </div>
+          </div>
         </div>
 
         <DragOverlay>
@@ -526,17 +570,17 @@ Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
           marginTop: '10px',
         }}
       >
-        <button onClick={handleReset} className="primary-button">
+        <button onClick={handleReset} className="primary-button" disabled={isSubmitting}>
           Buat Semula
         </button>
-        <button onClick={checkAnswer} className="primary-button">
-          Semak Jawapan
+        <button onClick={checkAnswer} className="primary-button" disabled={isSubmitting || isCorrect}>
+          {isSubmitting ? 'Menghantar...' : 'Semak Jawapan'}
         </button>
         <button
           onClick={handleNext}
           className="primary-button"
           style={{
-            backgroundColor: '#2ecc71',
+            backgroundColor: isCorrect ? '#2ecc71' : '#999',
             opacity: isCorrect ? 1 : 0.5,
             cursor: isCorrect ? 'pointer' : 'not-allowed',
           }}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 
 const initialAvailableSteps = [
   { id: 's1', content: 'Cetak Slip Pendaftaran' },
@@ -8,10 +8,15 @@ const initialAvailableSteps = [
   { id: 's5', content: 'Mula' },
 ];
 
-function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
+function Mission1_Pembinaan({ onContinue, onFeedback }) {
   const [availableSteps, setAvailableSteps] = useState(initialAvailableSteps);
   const [orderedSteps, setOrderedSteps] = useState([]);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  // Scoring State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0); // Track attempts locally
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const moveStep = (stepToMove) => {
     setAvailableSteps(prev => prev.filter(step => step.id !== stepToMove.id));
@@ -39,30 +44,71 @@ function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
     setIsCorrect(false);
   };
 
-  const checkAnswer = () => {
+  // --------------------------
+  // Updated: checkAnswer & submitPhase
+  // --------------------------
+  const submitPhase = async (score, badge = null) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mission: 1,
+          phase: 'pembinaan',
+          isCorrect: true,
+          score: score,
+          badge: badge
+        })
+      });
+    } catch (err) {
+      console.error("Mission submit failed:", err);
+      onFeedback('⚠️ Ralat menghantar markah ke pelayan.', 3000, 'error');
+    }
+  };
+
+  const checkAnswer = async () => {
     const correctOrder = ['s5', 's2', 's3', 's1', 's4'];
     const playerOrder = orderedSteps.map(step => step.id);
+    const ok = JSON.stringify(playerOrder) === JSON.stringify(correctOrder);
 
-    if (JSON.stringify(playerOrder) === JSON.stringify(correctOrder)) {
-      setIsCorrect(true);
-      onFeedback?.('✅ 🎉 Hebat! Algoritma kamu betul!', 3000, true);
-      onBadgeEarned?.('Master Algoritma'); // award badge if correct
-    } else {
-      setIsCorrect(false);
-      onFeedback?.('❌ 😅 Masih ada langkah yang tersilap!', 3000, false);
+    if (!ok) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        onFeedback('❌ 😅 Masih ada langkah yang tersilap! (-5 Markah)', 3000, 'error');
+        return;
     }
+
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+    const badgeEarned = attempts === 0 ? 'Master Algoritma' : null;
+
+    setEarnedScore(calculatedScore);
+    setIsCorrect(true);
+
+    await submitPhase(calculatedScore, badgeEarned);
+
+    let msg = `✅ 🎉 Hebat! Algoritma kamu betul! (+${calculatedScore} Markah)`;
+    if (badgeEarned) msg += ' 🏅 Lencana Master Algoritma diperolehi!';
+    onFeedback(msg, 3000, 'success');
   };
 
   const reset = () => {
     setAvailableSteps(initialAvailableSteps);
     setOrderedSteps([]);
     setIsCorrect(false);
-    onFeedback?.('🔄 Susunan algoritma telah direset. Cuba bina semula dari awal.');
+    setAttempts(0);
+    onFeedback('🔄 Susunan algoritma telah direset. Cuba bina semula dari awal.', 2000, 'neutral');
   };
 
   const handleNext = () => {
     if (!isCorrect) return;
-    onContinue();
+    const badge = attempts === 0 ? 'Master Algoritma' : null;
+    onContinue(earnedScore, badge);
   };
 
   return (
@@ -79,7 +125,6 @@ function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
           <h4>SENARAI LANGKAH</h4>
           {availableSteps.map((step) => (
             <div key={step.id} className="sorter-item">
-              {/* ONLY left-align this specific step */}
               <span style={step.id === 's2' ? { textAlign: 'left', whiteSpace: 'pre-line', display: 'block' } : {}}>
                 {step.content}
               </span>
@@ -92,18 +137,12 @@ function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
           <h4>SUSUNAN ALGORITMA</h4>
           {orderedSteps.map((step, index) => (
             <div key={step.id} className="sorter-item">
-              {/* ONLY left-align this specific step */}
               <span style={step.id === 's2' ? { textAlign: 'left', whiteSpace: 'pre-line', display: 'block' } : {}}>
                 {step.content}
               </span>
               <div>
                 <button onClick={() => moveUp(index)} disabled={index === 0}>⬆️</button>
-                <button
-                  onClick={() => moveDown(index)}
-                  disabled={index === orderedSteps.length - 1}
-                >
-                  ⬇️
-                </button>
+                <button onClick={() => moveDown(index)} disabled={index === orderedSteps.length - 1}>⬇️</button>
               </div>
             </div>
           ))}
@@ -112,34 +151,27 @@ function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
 
       <hr />
 
-      <div
-  style={{
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: 10,
-    marginTop: 20,
-  }}
->
-  <button onClick={reset} className="primary-button">
-    Buat Semula
-  </button>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+        <button onClick={reset} className="primary-button" disabled={isSubmitting}>
+          Buat Semula
+        </button>
 
-  <button onClick={checkAnswer} className="primary-button">
-    Semak Jawapan
-  </button>
+        <button onClick={checkAnswer} className="primary-button" disabled={isSubmitting}>
+          {isSubmitting ? 'Menghantar...' : 'Semak Jawapan'}
+        </button>
 
-  <button
-    className="primary-button"
-    style={{
-      backgroundColor: isCorrect ? '#2ecc71' : '#999',
-      cursor: isCorrect ? 'pointer' : 'not-allowed',
-    }}
-    disabled={!isCorrect}
-    onClick={isCorrect ? handleNext : undefined}
-  >
-    Seterusnya
-  </button>
-</div>
+        <button
+          className="primary-button"
+          style={{
+            backgroundColor: isCorrect ? '#2ecc71' : '#999',
+            cursor: isCorrect ? 'pointer' : 'not-allowed',
+          }}
+          disabled={!isCorrect}
+          onClick={handleNext}
+        >
+          Seterusnya
+        </button>
+      </div>
 
     </div>
   );

@@ -9,7 +9,7 @@ import {
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
-// --- Sortable Item ---
+// --- Reusable Sortable Item ---
 function SortableItem({ id, content }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -40,7 +40,7 @@ function DroppableSortableColumn({ id, title, items }) {
   );
 }
 
-// --- Initial Items ---
+// --- Initial Items for "Student Fees" Scenario ---
 const INITIAL_ITEMS = {
   available: [
     { id: 'item-1', content: 'Tentukan Status Bayaran (Lunas / Belum Lunas)' },
@@ -63,12 +63,20 @@ const INITIAL_ITEMS = {
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
 
 // --- Mission 3 Penguraian ---
-function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }) {
+function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect: propIsCorrect }) {
   const [items, setItems] = useState(clone(INITIAL_ITEMS));
   const [activeId, setActiveId] = useState(null);
+  const [isCorrect, setIsCorrect] = useState(false);
+  
+  // Scoring State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    setRobotText('Kenal pasti Input, Proses, dan Output untuk sistem yuran pelajar.');
+    if (setRobotText) {
+        setRobotText('Kenal pasti Input, Proses, dan Output untuk sistem yuran pelajar.');
+    }
   }, [setRobotText]);
 
   const findContainer = (itemId) => {
@@ -87,6 +95,9 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over.id) || over.id;
     if (!activeContainer || !overContainer) { setActiveId(null); return; }
+
+    // Reset correctness state on any drag
+    setIsCorrect(false);
 
     if (activeContainer === overContainer) {
       setItems(prev => {
@@ -113,7 +124,9 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
     setActiveId(null);
   };
 
-  const checkAnswer = () => {
+  // --- CHECK Answer & SCORE ---
+  const checkAnswer = async () => {
+    // Correct answers for Student Fees
     const correctInput = ['item-6','item-2','item-8','item-5','item-11'].sort();
     const correctProses = ['item-3','item-1','item-10'].sort();
     const correctOutput = ['item-7','item-9','item-4'].sort();
@@ -122,21 +135,63 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
     const playerProses = items.proses.map(i => i.id).sort();
     const playerOutput = items.output.map(i => i.id).sort();
 
-    if (
+    const ok = 
       JSON.stringify(playerInput) === JSON.stringify(correctInput) &&
       JSON.stringify(playerProses) === JSON.stringify(correctProses) &&
-      JSON.stringify(playerOutput) === JSON.stringify(correctOutput)
-    ) {
-      onFeedback?.('✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan Kampus Digital.', true);
-    } else {
-      onFeedback?.('⚠️ Semak semula. Semua data pelajar seperti nombor pendaftaran dan jumlah bayaran adalah Input, manakala pengiraan baki ialah Proses.', false);
+      JSON.stringify(playerOutput) === JSON.stringify(correctOutput);
+
+    if (!ok) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        if (onFeedback) onFeedback('⚠️ Semak semula. Semua data pelajar seperti nombor pendaftaran adalah Input. (-5 Markah)', 3000, 'error');
+        return;
+    }
+
+    // Correct: Calculate Score
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+    
+    setIsSubmitting(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 3,
+          phase: 'penguraian',
+          isCorrect: true,
+          score: calculatedScore,
+          badge: null
+        })
+      });
+
+      setEarnedScore(calculatedScore);
+      setIsCorrect(true);
+      if (onFeedback) onFeedback(`✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan. (+${calculatedScore} Markah)`, 3000, 'success');
+      
+    } catch (err) {
+      console.error("Error submitting:", err);
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleReset = () => {
     setItems(clone(INITIAL_ITEMS));
     setActiveId(null);
-    onFeedback?.('Susunan telah direset. Cuba semula dengan teliti.', null);
+    setIsCorrect(false);
+    setAttempts(0);
+    if (onFeedback) onFeedback('Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+  };
+
+  const handleNext = () => {
+    if (!isCorrect) return;
+    onContinue(earnedScore);
   };
 
   const activeItem = activeId
@@ -147,8 +202,8 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
     <div>
       <h3>TAHAP 1: PENGURAIAN</h3>
       <p>
-        Dalam Sistem Kewangan Kampus Digital, setiap pelajar perlu membayar beberapa jenis yuran.
-        Tugas anda ialah mengenal pasti Input, Proses, dan Output bagi setiap item supaya sistem boleh mengira jumlah keseluruhan dengan betul.
+        Dalam Sistem Kewangan Kampus Digital, setiap pelajar perlu membayar beberapa jenis yuran seperti pengajian, asrama dan aktiviti pelajar. Robot Algo sedang membina modul pengiraan automatik untuk menjumlahkan semua jenis yuran Tugas anda ialah  mengenal pasti bahagian input, proses dan output dalam sistem ulangan ini supaya sistem dapat mengira jumlah keseluruhan dengan betul.
+
       </p>
       <hr />
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
@@ -164,33 +219,34 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect }
       <hr />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
-  <button
-    onClick={handleReset}
-    className="primary-button"
-  >
-    Buat Semula
-  </button>
+        <button
+          onClick={handleReset}
+          className="primary-button"
+          disabled={isSubmitting}
+        >
+          Buat Semula
+        </button>
 
-  <button
-    onClick={checkAnswer}
-    className="primary-button"
-  >
-    Semak Jawapan
-  </button>
+        <button
+          onClick={checkAnswer}
+          className="primary-button"
+          disabled={isSubmitting}
+        >
+          Semak Jawapan
+        </button>
 
-  <button
-    onClick={isCorrect ? onContinue : undefined}
-    className="primary-button"
-    style={{
-      backgroundColor: isCorrect ? '#2ecc71' : '#999',
-      cursor: isCorrect ? 'pointer' : 'not-allowed',
-    }}
-    disabled={!isCorrect}
-  >
-    Seterusnya
-  </button>
-</div>
-
+        <button
+          onClick={isCorrect ? handleNext : undefined}
+          className="primary-button"
+          style={{
+            backgroundColor: isCorrect ? '#2ecc71' : '#999',
+            cursor: isCorrect ? 'pointer' : 'not-allowed',
+          }}
+          disabled={!isCorrect}
+        >
+          Seterusnya
+        </button>
+      </div>
     </div>
   );
 }

@@ -49,7 +49,7 @@ const INITIAL_DATA = {
   available: [
     { id: 'd-1', content: 'Nama Pelajar' },
     { id: 'd-2', content: 'Markah PA' },
-    { id: 'd-3', content: 'Status Lulus' },
+    { id: 'd-3', content: 'Status Lulus' }, // Fixed from 'Syarat Lulus' to match correct logic
     { id: 'd-4', content: 'Kelas' },
     { id: 'd-5', content: 'Program' },
     { id: 'd-6', content: 'Syarat Lulus (≥50%)' },
@@ -74,11 +74,16 @@ const INITIAL_STEPS = {
 const clone = (obj) => JSON.parse(JSON.stringify(obj));
 
 // --- Main Component ---
-function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
+function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
   const [dataItems, setDataItems] = useState(() => clone(INITIAL_DATA));
   const [stepItems, setStepItems] = useState(() => clone(INITIAL_STEPS));
   const [activeId, setActiveId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
+
+  // Backend Integration State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- Helpers ---
   function findContainer(itemId) {
@@ -144,6 +149,7 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
     setItems(prev => {
       const prevActiveList = prev[activeContainer] || [];
       const prevOverList = prev[overContainer] || [];
+
       const movedItem = prevActiveList.find(i => i.id === activeIdLocal);
       if (!movedItem) return prev;
 
@@ -157,33 +163,69 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
     });
   }
 
-  // --- Check Answer ---
-  function checkAnswer() {
-    const correctDataPenting = ['d-2','d-3','d-6','d-7','d-10'].sort();
+  // --- Check Answer & SCORING ---
+  const checkAnswer = async () => {
+    // Correct Data logic based on Slide 706/708
+    const correctDataPenting = ['d-2','d-6','d-7','d-10','d-3'].sort(); // Markah PA, Syarat, PB, Gred, Status
     const userDataPenting = dataItems.penting.map(i => i.id).sort();
     const isDataCorrect = JSON.stringify(correctDataPenting) === JSON.stringify(userDataPenting);
 
-    const correctLangkah = ['l-1','l-2','l-3'];
+    const correctLangkah = ['l-1','l-2','l-3']; // Semak Markah -> Tentukan Status
     const userLangkah = stepItems.ordered_langkah.map(i => i.id);
     const isLangkahCorrect = JSON.stringify(correctLangkah) === JSON.stringify(userLangkah);
 
-    if (isDataCorrect && isLangkahCorrect) {
-      setIsCorrect(true);
-      onFeedback('✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting. Sistem kini dapat menilai keputusan dengan logik yang betul.', 3000, true);
-    } else {
-      setIsCorrect(false);
-      onFeedback('❌ Salah: Ada maklumat tidak relevan dipilih. Ingat, hanya data yang mempengaruhi syarat lulus digunakan untuk keputusan.', 3000, false);
+    const ok = isDataCorrect && isLangkahCorrect;
+
+    if (!ok) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        onFeedback('❌ Salah: Ada maklumat tidak relevan dipilih. (-5 Markah)', 3000, 'error');
+        return;
     }
-  }
+
+    // Correct: Calculate Score
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+
+    setIsSubmitting(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 2,
+          phase: 'pengabstrakan',
+          isCorrect: true,
+          score: calculatedScore,
+          badge: null
+        })
+      });
+
+      setEarnedScore(calculatedScore);
+      setIsCorrect(true);
+      onFeedback(`✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting. (+${calculatedScore} Markah)`, 3000, 'success');
+      
+    } catch (err) {
+      console.error("Error submitting:", err);
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // --- Reset ---
-  function handleReset() {
+  const handleReset = () => {
     setDataItems(clone(INITIAL_DATA));
     setStepItems(clone(INITIAL_STEPS));
     setActiveId(null);
     setIsCorrect(false);
-    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.');
-  }
+    setAttempts(0); // Reset attempts
+    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+  };
 
   const allItems = [
     ...dataItems.available,
@@ -198,7 +240,6 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
       <h3>TAHAP 2: PENGABSTRAKAN</h3>
       <p>
            Sistem Peperiksaan perlu mengenal pasti maklumat penting untuk menentukan sama ada pelajar lulus atau gagal. Tugas anda ialah  memilih data yang benar-benar diperlukan dalam penilaian keputusan pelajar, dan abaikan maklumat yang tidak relevan.
-
       </p>
       <hr />
 
@@ -241,42 +282,38 @@ function Mission2_Pengabstrakan({ onContinue, setRobotText, onFeedback }) {
       <hr />
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-  <button
-    className="primary-button"
-    onClick={handleReset}
-    style={{ transition: 'transform 0.2s ease' }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-  >
-    Buat Semula
-  </button>
+        <button
+            className="primary-button"
+            onClick={handleReset}
+            style={{ transition: 'transform 0.2s ease', backgroundColor: '#555' }}
+            disabled={isSubmitting}
+        >
+            Buat Semula
+        </button>
 
-  <button
-    className="primary-button"
-    onClick={checkAnswer}
-    style={{ transition: 'transform 0.2s ease' }}
-    onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-  >
-    Semak Jawapan
-  </button>
+        <button
+            className="primary-button"
+            onClick={checkAnswer}
+            style={{ transition: 'transform 0.2s ease' }}
+            disabled={isSubmitting || isCorrect}
+        >
+            {isSubmitting ? 'Menghantar...' : 'Semak Jawapan'}
+        </button>
 
-  <button
-    className="primary-button"
-    onClick={isCorrect ? onContinue : undefined}
-    disabled={!isCorrect}
-    style={{
-      backgroundColor: '#2ecc71',
-      opacity: isCorrect ? 1 : 0.5,
-      cursor: isCorrect ? 'pointer' : 'not-allowed',
-      transition: 'transform 0.2s ease, background-color 0.2s ease',
-    }}
-    onMouseEnter={(e) => isCorrect && (e.currentTarget.style.transform = 'scale(1.05)')}
-    onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-  >
-    Seterusnya
-  </button>
-</div>
+        <button
+            className="primary-button"
+            onClick={isCorrect ? () => onContinue(earnedScore) : undefined}
+            disabled={!isCorrect}
+            style={{
+            backgroundColor: isCorrect ? '#2ecc71' : '#999',
+            opacity: isCorrect ? 1 : 0.5,
+            cursor: isCorrect ? 'pointer' : 'not-allowed',
+            transition: 'transform 0.2s ease, background-color 0.2s ease',
+            }}
+        >
+            Seterusnya
+        </button>
+        </div>
 
     </div>
   );

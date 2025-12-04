@@ -116,6 +116,11 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   const [activeId, setActiveId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  // Backend Integration State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   function findContainer(itemId) {
     if (!itemId) return null;
     if (Object.prototype.hasOwnProperty.call(items, itemId)) return itemId;
@@ -137,6 +142,9 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     if (!activeContainer || !overContainer) { setActiveId(null); return; }
     if (activeContainer === overContainer && active.id === over.id) { setActiveId(null); return; }
 
+    // Reset correct state on drag
+    setIsCorrect(false);
+
     setItems(prev => {
       const newState = { ...prev };
       const activeItems = [...prev[activeContainer]];
@@ -154,16 +162,16 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     });
 
     setActiveId(null);
-    setIsCorrect(false);
   };
 
   const handleReset = () => {
     setItems(initialItems);
     setIsCorrect(false);
-    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', null);
+    setAttempts(0);
+    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', 'neutral');
   };
 
-  const checkAnswer = () => {
+  const checkAnswer = async () => {
     const correctOrder = {
       oval1: 'Mula',
       parallelogram1: 'Masukkan No Pendaftaran',
@@ -181,17 +189,64 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
       items[slot][0]?.content === text
     );
 
-    setIsCorrect(isRight);
-    if (isRight) {
-      onFeedback?.('✅ Jawapan Betul“Hebat! Struktur algoritma kewangan kamu lengkap dan tersusun. Sistem berjaya mengira baki serta menentukan status bayaran dengan betul. Semua langkah input, proses dan output telah digunakan secara logik!”\n\n' +
-            '🏅 Anda telah memperoleh lencana "Master Algoritma".', true);
-      onBadgeEarned?.('Master Algoritma');
-    } else {
-      onFeedback?.('❌ Jawapan Salah (Susunan atau Formula Salah) “Masih ada kesilapan logik! Semak semula urutan langkah kamu. Pastikan sistem mengira baki sebelum menentukan status bayaran, dan semua input telah dimasukkan terlebih dahulu.”', false);
+    if (!isRight) {
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+        onFeedback?.('❌ Jawapan Salah (Susunan atau Formula Salah) “Masih ada kesilapan logik! (-5 Markah)”', 3000, 'error');
+        return;
+    }
+
+    // Correct: Calculate Score
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+
+    setIsSubmitting(true);
+    const token = localStorage.getItem('token');
+
+    try {
+      // Call Backend API
+      const response = await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 3,
+          phase: 'pembinaan',
+          isCorrect: true,
+          score: calculatedScore,
+          // Badge awarded if correct on first try
+          badge: attempts === 0 ? 'Master Algoritma' : null
+        })
+      });
+
+      const data = await response.json();
+
+      setEarnedScore(calculatedScore);
+      setIsCorrect(true);
+
+      let badgeMsg = '';
+      if (attempts === 0) {
+           badgeMsg = '\n\n🏅 Anda telah memperoleh lencana "Master Algoritma".';
+           onBadgeEarned?.('Master Algoritma');
+      }
+
+      onFeedback?.(`✅ Jawapan Betul! “Hebat! Struktur algoritma kewangan kamu lengkap. (+${calculatedScore} Markah)${badgeMsg}`, 3000, 'success');
+
+    } catch (err) {
+      console.error("Error submitting:", err);
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleNext = () => { if (isCorrect) onContinue?.(); };
+  const handleNext = () => {
+    if (!isCorrect) return;
+    // Pass score AND badge name (if earned) to parent
+    const badge = attempts === 0 ? 'Master Algoritma' : null;
+    onContinue?.(earnedScore, badge);
+  };
 
   const allItems = Object.values(items).flat();
   const activeItem = activeId ? allItems.find(i => i.id === activeId) : null;
@@ -199,7 +254,8 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   return (
     <div>
       <h3>TAHAP 3: PEMBINAAN ALGORITMA</h3>
-      <p><em>Sistem Kewangan Kampus Digital kini sedang membina algoritma lengkap untuk memproses bayaran yuran setiap pelajar.  Bantu sistem menyusun langkah pseudokod dalam urutan yang betul dan padankan setiap langkah dengan simbol carta alir yang sesuai. Pastikan struktur ulangan digunakan supaya proses pembayaran boleh dijalankan untuk setiap pelajar.
+      <p><em>Sistem Kewangan Kampus Digital kini sedang membina algoritma lengkap untuk memproses bayaran yuran setiap pelajar.  
+Bantu sistem menyusun langkah pseudokod dalam urutan yang betul dan padankan setiap langkah dengan simbol carta alir yang sesuai. Pastikan struktur ulangan digunakan supaya proses pembayaran boleh dijalankan untuk setiap pelajar.
 </em></p>
       <hr />
 
@@ -306,7 +362,6 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
   // Helper for arrowhead
   const ArrowHead = ({ top, left, direction }) => {
-    // direction: 'down', 'up', 'left', 'right'
     const rotation = {
       down: '0deg',
       up: '180deg',
@@ -459,9 +514,18 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
       <hr />
       <div style={{ display:'flex', justifyContent:'flex-end', gap:'10px', marginTop:'10px' }}>
-        <button onClick={handleReset} className="primary-button">Buat Semula</button>
-        <button onClick={checkAnswer} className="primary-button">Semak Jawapan</button>
-        <button onClick={handleNext} className="primary-button" style={{ backgroundColor:'#2ecc71', opacity: isCorrect?1:0.5, cursor: isCorrect?'pointer':'not-allowed'}} disabled={!isCorrect}>Seterusnya</button>
+        <button onClick={handleReset} className="primary-button" disabled={isSubmitting}>Buat Semula</button>
+        <button onClick={checkAnswer} className="primary-button" disabled={isSubmitting || isCorrect}>
+           {isSubmitting ? 'Menghantar...' : 'Semak Jawapan'}
+        </button>
+        <button 
+          onClick={handleNext} 
+          className="primary-button" 
+          style={{ backgroundColor: isCorrect ? '#2ecc71' : '#999', opacity: isCorrect ? 1 : 0.5, cursor: isCorrect ? 'pointer' : 'not-allowed' }} 
+          disabled={!isCorrect}
+        >
+          Seterusnya
+        </button>
       </div>
     </div>
   );

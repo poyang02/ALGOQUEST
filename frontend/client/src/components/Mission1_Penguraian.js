@@ -70,6 +70,11 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
   const [items, setItems] = useState(clone(INITIAL));
   const [activeId, setActiveId] = useState(null);
   const [isCorrect, setIsCorrect] = useState(false);
+  
+  // Scoring State
+  const [earnedScore, setEarnedScore] = useState(0);
+  const [attempts, setAttempts] = useState(0); // Tracks how many times user got it wrong
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- find container of item ---
   const findContainer = id => {
@@ -90,6 +95,9 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
     const to = findContainer(over.id) || over.id;
 
     if (!from || !to) return;
+
+    // Reset correct state if user moves items after checking
+    setIsCorrect(false); 
 
     if (from === to) {
       // reorder
@@ -120,25 +128,35 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
     setActiveId(null);
   };
 
-  // --- CHECK Answer ---
-  const checkAnswer = () => {
+  // --- CHECK Answer & SCORING ---
+  const checkAnswer = async () => {
     const correct = {
       input: ['i1', 'i2', 'i3', 'i4', 'i7'],
       proses: ['i6'],
       output: ['i5']
     };
 
+    // 1. Calculate correctness locally
     const ok =
       JSON.stringify(items.input.map(i => i.id).sort()) === JSON.stringify(correct.input.sort()) &&
       JSON.stringify(items.proses.map(i => i.id).sort()) === JSON.stringify(correct.proses.sort()) &&
       JSON.stringify(items.output.map(i => i.id).sort()) === JSON.stringify(correct.output.sort());
 
     if (ok) {
-      setIsCorrect(true);
-      onFeedback('🎉 Hebat! Semua komponen betul!', 3000, true); // ⭐ GREEN
+        // Correct Logic: Start at 25, deduct 5 per attempt, min 5
+        const finalScore = Math.max(5, 25 - (attempts * 5));
+        setEarnedScore(finalScore);
+        setIsCorrect(true);
+
+        // FIX: Pass 'success' string for Green Glow
+        onFeedback(`🎉 Hebat! Semua komponen betul! (+${finalScore} Markah)`, 3000, 'success'); 
     } else {
-      setIsCorrect(false);
-      onFeedback('😅 Masih ada komponen yang tersilap!', 3000, false); // ⭐ RED
+        // Incorrect Logic
+        setAttempts(prev => prev + 1);
+        setIsCorrect(false);
+
+        // FIX: Pass 'error' string for Red Glow
+        onFeedback('😅 Masih ada komponen yang tersilap! (-5 Markah)', 3000, 'error'); 
     }
   };
 
@@ -146,7 +164,41 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
   const handleReset = () => {
     setItems(clone(INITIAL));
     setIsCorrect(false);
-    onFeedback('🔄 Reset berjaya. Cuba semula.', 2000, false);
+    setAttempts(0); // FIX: Reset attempts so score goes back to 25
+    onFeedback('🔄 Reset berjaya. Markah kembali penuh.', 2000, 'neutral');
+  };
+
+  // --- SUBMIT TO BACKEND ---
+  const handleNext = async () => {
+     if (!isCorrect) return;
+     
+     setIsSubmitting(true);
+     const token = localStorage.getItem('token');
+     
+     try {
+        await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({
+          mission: 1,
+          phase: 'penguraian',
+          isCorrect: true,
+          score: earnedScore, // Send the locally calculated score
+          badge: null
+        })
+      });
+      
+      // Move to next phase
+      onContinue(earnedScore);
+
+     } catch (err) {
+         console.error("Error submitting:", err);
+     } finally {
+         setIsSubmitting(false);
+     }
   };
 
   const activeItem =
@@ -158,8 +210,7 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
   return (
     <div>
       <h3>TAHAP 1: PENGURAIAN</h3>
-      <p>Sistem Akademik sedang membina modul pendaftaran pelajar baharu. Namun, sistem masih belum dapat mengenal pasti komponen Input, Proses dan Output dengan betul. Tugas anda ialah memecahkan masalah kepada tiga komponen utama dan meletakkan setiap item pada kedudukan yang betul supaya aliran pendaftaran berjalan lancar.
-</p>
+      <p>Sistem Akademik sedang membina modul pendaftaran pelajar baharu. Namun, sistem masih belum dapat mengenal pasti komponen Input, Proses dan Output dengan betul. Tugas anda ialah memecahkan masalah kepada tiga komponen utama dan meletakkan setiap item pada kedudukan yang betul supaya aliran pendaftaran berjalan lancar.</p>
 
       <DndContext
         onDragStart={handleDragStart}
@@ -179,12 +230,12 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
       </DndContext>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-        <button className="primary-button" onClick={handleReset}>
+        <button className="primary-button" onClick={handleReset} disabled={isSubmitting}>
           Buat Semula
         </button>
 
-        <button className="primary-button" onClick={checkAnswer}>
-          Semak
+        <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting || isCorrect}>
+          {isCorrect ? 'Betul!' : 'Semak'}
         </button>
 
         <button
@@ -193,10 +244,10 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
             backgroundColor: isCorrect ? '#2ecc71' : '#999',
             cursor: isCorrect ? 'pointer' : 'not-allowed'
           }}
-          disabled={!isCorrect}
-          onClick={isCorrect ? onContinue : undefined}
+          disabled={!isCorrect || isSubmitting}
+          onClick={handleNext}
         >
-          Seterusnya
+          {isSubmitting ? 'Menghantar...' : 'Seterusnya'}
         </button>
       </div>
     </div>
