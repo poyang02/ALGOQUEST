@@ -27,11 +27,8 @@ function Mission1({ onMissionComplete }) {
   const onFeedback = (text, duration = 3000, correctState = null) => {
     setRobotText(text);
 
-    let status = correctState;
-    if (correctState === true) status = 'success';
-    if (correctState === false) status = 'error';
-
-    setIsCorrect(status);
+    // Set robot glow: true=green, false=red, null=normal
+    setIsCorrect(correctState);
 
     setTimeout(() => {
       setIsCorrect(null);
@@ -40,7 +37,7 @@ function Mission1({ onMissionComplete }) {
   };
 
   // --------------------------
-  // NEW Unified Backend Submit
+  // Unified Backend Submit
   // --------------------------
   const submitPhaseToBackend = async (phaseName, isCorrectAnswer, score, badge) => {
     const token = localStorage.getItem('token');
@@ -70,9 +67,9 @@ function Mission1({ onMissionComplete }) {
   // Phase Completion Handler
   // --------------------------
   const handlePhaseComplete = (nextPhase, scoreEarned, badgeEarned = null) => {
+    const isCorrectAnswer = scoreEarned > 0;
 
-    const isCorrectAnswer = scoreEarned > 0; // scoring logic basis
-
+    // Send to backend
     submitPhaseToBackend(missionPhase, isCorrectAnswer, scoreEarned, badgeEarned);
 
     setTotalScore(prev => prev + scoreEarned);
@@ -81,9 +78,11 @@ function Mission1({ onMissionComplete }) {
       setEarnedBadges(prev => [...prev, badgeEarned]);
     }
 
+    // Update robot glow for phase completion
+    setIsCorrect(isCorrectAnswer);
+
     setMissionPhase(nextPhase);
     setRobotText(ROBOT_TEXTS[nextPhase]);
-    setIsCorrect(null);
   };
 
   // --------------------------
@@ -135,7 +134,7 @@ function Mission1({ onMissionComplete }) {
   return (
     <MissionLayout
       robotText={robotText}
-      robotStatus={isCorrect}
+      isCorrect={isCorrect} // ✅ pass correct/wrong status for glow
     >
       {renderPhase()}
     </MissionLayout>

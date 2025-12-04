@@ -8,18 +8,25 @@ function SortableItem({ id, content, source = 'list' }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
   const isShape = source === 'shape';
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    marginBottom: isShape ? '0' : '10px',
-    fontSize: isShape ? '0.8rem' : '1rem',
-    padding: isShape ? '4px' : '10px',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    touchAction: 'none',
-    cursor: 'grab',
-  };
+  transform: CSS.Transform.toString(transform),
+  transition,
+  marginBottom: isShape ? '0' : '10px',
+  fontSize: isShape ? '0.8rem' : '1rem',
+  padding: isShape ? '4px' : '10px',
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  touchAction: 'none',
+  cursor: 'grab',
+
+  // NEW: wrap text inside shapes without stretching the shape
+  whiteSpace: 'normal',         // allow line breaks
+  wordBreak: 'break-word',      // break long words
+  overflowWrap: 'break-word',
+  textAlign: 'center',
+};
+
   return (
     <div
       ref={setNodeRef}
@@ -60,36 +67,56 @@ function FlowchartShape({ id, shapeType, items }) {
 
   return (
     <div
-      ref={setNodeRef}
-      className={`flowchart-shape ${shapeClass}`}
-      style={{
-        margin: '5px',
-        padding: '4px',
-        minWidth: '140px',
-        minHeight: '60px',
-        borderColor: '#00ffff',
-        backgroundColor: 'rgba(0,0,0,0.1)',
-        borderWidth: '2px',
-        borderStyle: 'solid',
-        outline: isOver ? '2px dashed #00ffff' : 'none',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-      }}
-    >
-      <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-        {items.length > 0 ? (
-          <SortableItem id={items[0].id} content={items[0].content} source="shape" />
-        ) : (
-          <span style={{ opacity: 0.3, fontSize: '0.7rem', pointerEvents: 'none' }}>
-            Seret sini
-          </span>
-        )}
-      </SortableContext>
-    </div>
+  ref={setNodeRef}
+  className={`flowchart-shape ${shapeClass}`}
+  style={{
+    margin: '5px',
+    padding: '4px',
+    width: '140px',        // fixed width
+    height: '50px',        // fixed height
+    borderColor: '#00ffff',
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    borderWidth: '2px',
+    borderStyle: 'solid',
+    outline: isOver ? '2px dashed #00ffff' : 'none',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    textAlign: 'center',
+  }}
+>
+  <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+    {items.length > 0 ? (
+      <SortableItem
+        id={items[0].id}
+        content={items[0].content}
+        source="shape"
+        style={{
+          fontSize: '0.7rem',       // smaller font
+          whiteSpace: 'normal',     // allow line breaks
+          wordBreak: 'break-word',  // break long words
+          overflow: 'hidden',       // prevent overflow
+          textAlign: 'center',
+        }}
+      />
+    ) : (
+      <span style={{ 
+          opacity: 0.3, 
+          fontSize: '0.7rem', 
+          pointerEvents: 'none', 
+          textAlign: 'center',
+          whiteSpace: 'normal',
+          wordBreak: 'break-word'
+        }}
+      >
+        Seret sini
+      </span>
+    )}
+  </SortableContext>
+</div>
+
   );
 }
 
@@ -168,7 +195,7 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     setItems(initialItems);
     setIsCorrect(false);
     setAttempts(0);
-    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', 'neutral');
+    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', null);
   };
 
   const checkAnswer = async () => {
@@ -192,7 +219,7 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     if (!isRight) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        onFeedback?.('❌ Jawapan Salah (Susunan atau Formula Salah) “Masih ada kesilapan logik! (-5 Markah)”', 3000, 'error');
+        onFeedback?.('❌ Jawapan Salah (Susunan atau Formula Salah) “Masih ada kesilapan logik! (-5 Markah)”', 3000, false);
         return;
     }
 
@@ -231,11 +258,11 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
            onBadgeEarned?.('Master Algoritma');
       }
 
-      onFeedback?.(`✅ Jawapan Betul! “Hebat! Struktur algoritma kewangan kamu lengkap. (+${calculatedScore} Markah)${badgeMsg}`, 3000, 'success');
+      onFeedback?.(`✅ Jawapan Betul! “Hebat! Struktur algoritma kewangan kamu lengkap. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);
-      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -342,7 +369,7 @@ Bantu sistem menyusun langkah pseudokod dalam urutan yang betul dan padankan set
     },
     arrow2: {
       // Rectangle3 → Parallelogram3
-      top: 350 + arrowOffsetY,
+      top: 370 + arrowOffsetY,
       horizontal: 100,
       vertical: 50,
       label: '',

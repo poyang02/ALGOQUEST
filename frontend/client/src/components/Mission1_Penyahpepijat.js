@@ -23,7 +23,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
     setAnswers(initialAnswers);
     setShowNextButton(false);
     setAttempts(0); // Reset attempts for full marks
-    onFeedback('🔄 Reset berjaya. Markah kembali penuh.', 2000, 'neutral');
+    onFeedback('🔄 Reset berjaya. Markah kembali penuh.', 2000, null);
   };
 
   // --------------------------
@@ -50,7 +50,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
       });
     } catch (err) {
       console.error("Mission submit failed:", err);
-      onFeedback('⚠️ Ralat menghantar markah ke pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghantar markah ke pelayan.', 3000, false);
     }
   };
 
@@ -64,7 +64,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
 
     if (!isCorrect) {
         setAttempts(prev => prev + 1);
-        onFeedback(`❌ Masih ada ralat. (-5 Markah)`, 3000, 'error');
+        onFeedback(`❌ Masih ada ralat. (-5 Markah)`, 3000, false);
         setShowNextButton(false);
         return;
     }
@@ -79,7 +79,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
     await submitPhase(calculatedScore, badgeEarned);
 
     let badgeMsg = badgeEarned ? ' 🏅 Lencana Master Pemulih Logik diperolehi!' : '';
-    onFeedback(`✅ Hebat! Urutan betul. (+${calculatedScore} Markah)${badgeMsg}`, 3000, 'success');
+    onFeedback(`✅ Hebat! Urutan betul. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
     setShowNextButton(true);
     setIsSubmitting(false);
   };

@@ -20,7 +20,7 @@ function SettingsMenu({ onClose, onLogout, onReturnToHub, isMuted, onToggleMute 
         <div className="settings-backdrop" onClick={onClose}>
             {/* Modal Box */}
             <div className="settings-menu" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ color: '#79f8f8', marginBottom: '20px' }}>TATAPAN</h3>
+                <h3 style={{ color: '#79f8f8', marginBottom: '20px' }}>TETAPAN</h3>
                 
                 {/* 1. SAMBUNG PERMAINAN / CLOSE */}
                 <button 

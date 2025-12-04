@@ -162,7 +162,7 @@ function Mission3_Pengabstrakan({ onContinue, onFeedback }) {
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        onFeedback('❌ Salah “Urutan ini belum logik. Fikir semula urutan sebenar dalam proses bayaran pelajar.” (-5 Markah)', 3000, 'error');
+        onFeedback('❌ Salah “Urutan ini belum logik. Fikir semula urutan sebenar dalam proses bayaran pelajar.” (-5 Markah)', 3000, false);
         return;
     }
 
@@ -190,11 +190,11 @@ function Mission3_Pengabstrakan({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      onFeedback(`✅ “Hebat! Anda telah menyusun logik sistem kewangan Kampus Digital dengan tepat. Kini sistem boleh memproses bayaran pelajar secara automatik! (+${calculatedScore} Markah)`, 3000, 'success');
+      onFeedback(`✅ “Hebat! Anda telah menyusun logik sistem kewangan Kampus Digital dengan tepat. Kini sistem boleh memproses bayaran pelajar secara automatik! (+${calculatedScore} Markah)`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);
-      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -206,7 +206,7 @@ function Mission3_Pengabstrakan({ onContinue, onFeedback }) {
     setActiveId(null);
     setIsCorrect(false);
     setAttempts(0); // Reset attempts
-    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, null);
   };
 
   const allItems = [...dataItems.available_data, ...dataItems.penting, ...stepItems.available_langkah, ...stepItems.ordered_langkah];

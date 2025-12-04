@@ -8,9 +8,9 @@ import Mission3_Complete from './Mission3_Complete';
 
 function Mission3({ onMissionComplete }) {
   const [missionPhase, setMissionPhase] = useState('penguraian');
-  const [totalMissionScore, setTotalMissionScore] = useState(0); // Tracks total marks for this mission
+  const [totalMissionScore, setTotalMissionScore] = useState(0);
   const [earnedBadges, setEarnedBadges] = useState([]);
-  
+
   // Global feedback state for Robot
   const [feedbackText, setFeedbackText] = useState('');
   const [isCorrect, setIsCorrect] = useState(null);
@@ -19,10 +19,10 @@ function Mission3({ onMissionComplete }) {
   const savePhaseScore = async (phaseName, score) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch('https://algoquest-api.onrender.com/api/score', {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ mission: 3, phase: phaseName, score: score })
+        body: JSON.stringify({ mission: 3, phase: phaseName, isCorrect: score > 0, score: score, badge: null })
       });
     } catch (e) { console.error("Save failed", e); }
   };
@@ -30,10 +30,10 @@ function Mission3({ onMissionComplete }) {
   const saveBadge = async (badgeName) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch('https://algoquest-api.onrender.com/api/badge', {
+      await fetch('https://algoquest-api.onrender.com/api/mission/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ badge: badgeName })
+        body: JSON.stringify({ mission: 3, phase: missionPhase, isCorrect: true, score: 0, badge: badgeName })
       });
     } catch (e) { console.error("Badge save failed", e); }
   };
@@ -41,13 +41,9 @@ function Mission3({ onMissionComplete }) {
   // --- FEEDBACK HANDLER ---
   const handleFeedback = (message, duration = 3000, correctState = null) => {
     setFeedbackText(message);
-    
-    // Convert boolean to string for CSS class compatibility
-    let status = correctState;
-    if (correctState === true) status = 'success';
-    if (correctState === false) status = 'error';
 
-    setIsCorrect(status);
+    // Pass true/false/null for robot glow
+    setIsCorrect(correctState);
 
     setTimeout(() => {
       setFeedbackText('');
@@ -57,23 +53,21 @@ function Mission3({ onMissionComplete }) {
 
   // --- PHASE COMPLETION HANDLER ---
   const handlePhaseComplete = (nextPhase, scoreEarned, badgeEarned = null) => {
-    // 1. Update local total
-    setTotalMissionScore(prev => prev + scoreEarned);
-    
-    // 2. Save badge locally
-    if (badgeEarned) {
-        setEarnedBadges(prev => [...prev, badgeEarned]);
-    }
+    const isCorrectAnswer = scoreEarned > 0;
 
-    // 3. Save to Backend
-    let currentPhaseName = missionPhase; 
-    savePhaseScore(currentPhaseName, scoreEarned);
+    // Update totals and badges
+    setTotalMissionScore(prev => prev + scoreEarned);
+    if (badgeEarned) setEarnedBadges(prev => [...prev, badgeEarned]);
+
+    // Save to backend
+    savePhaseScore(missionPhase, scoreEarned);
     if (badgeEarned) saveBadge(badgeEarned);
 
-    // 4. Transition
+    // Robot glow for phase completion
+    setIsCorrect(isCorrectAnswer);
+
     setMissionPhase(nextPhase);
     setFeedbackText('');
-    setIsCorrect(null);
   };
 
   const robotTexts = {
@@ -129,8 +123,8 @@ function Mission3({ onMissionComplete }) {
 
   return (
     <MissionLayout 
-        robotText={feedbackText || robotTexts[missionPhase]}
-        robotStatus={isCorrect}
+      robotText={feedbackText || robotTexts[missionPhase]}
+      isCorrect={isCorrect} // ✅ glow control
     >
       {renderPhase()}
     </MissionLayout>

@@ -143,7 +143,7 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect: 
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        if (onFeedback) onFeedback('⚠️ Semak semula. Semua data pelajar seperti nombor pendaftaran adalah Input. (-5 Markah)', 3000, 'error');
+        if (onFeedback) onFeedback('⚠️ Semak semula. Semua data pelajar seperti nombor pendaftaran adalah Input. (-5 Markah)', 3000, false);
         return;
     }
 
@@ -171,11 +171,11 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect: 
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      if (onFeedback) onFeedback(`✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan. (+${calculatedScore} Markah)`, 3000, 'success');
+      if (onFeedback) onFeedback(`✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan. (+${calculatedScore} Markah)`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);
-      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -186,7 +186,7 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect: 
     setActiveId(null);
     setIsCorrect(false);
     setAttempts(0);
-    if (onFeedback) onFeedback('Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+    if (onFeedback) onFeedback('Susunan telah direset. Cuba semula dengan teliti.', 2000, null);
   };
 
   const handleNext = () => {

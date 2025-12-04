@@ -35,7 +35,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
   const checkAnswer = async () => {
     if (!selectedAnswer) {
       if (onFeedback) {
-        onFeedback('❌ Sila pilih satu jawapan dahulu sebelum menghantar.', 3000, 'error');
+        onFeedback('❌ Sila pilih satu jawapan dahulu sebelum menghantar.', 3000, false);
       }
       return;
     }
@@ -46,7 +46,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
         if (onFeedback) {
-            onFeedback('❌ “Semak semula logik syarat. Sistem sepatutnya menilai kedua-dua markah.” (-5 Markah)', 3000, 'error');
+            onFeedback('❌ “Semak semula logik syarat. Sistem sepatutnya menilai kedua-dua markah.” (-5 Markah)', 3000, false);
         }
         return;
     }
@@ -87,13 +87,13 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
         onFeedback(
           `✅ “Hebat! Anda telah membetulkan ralat logik. (+${calculatedScore} Markah)${badgeMsg}`, 
           3000, 
-          'success'
+          true
         );
       }
 
     } catch (err) {
       console.error("Error submitting:", err);
-      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }

@@ -179,7 +179,7 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        onFeedback('❌ Salah: Ada maklumat tidak relevan dipilih. (-5 Markah)', 3000, 'error');
+        onFeedback('❌ Salah: Ada maklumat tidak relevan dipilih. (-5 Markah)', 3000, false);
         return;
     }
 
@@ -207,11 +207,11 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      onFeedback(`✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting. (+${calculatedScore} Markah)`, 3000, 'success');
+      onFeedback(`✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting. (+${calculatedScore} Markah)`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);
-      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -224,7 +224,7 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
     setActiveId(null);
     setIsCorrect(false);
     setAttempts(0); // Reset attempts
-    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, null);
   };
 
   const allItems = [

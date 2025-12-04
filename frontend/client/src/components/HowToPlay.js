@@ -73,7 +73,7 @@ function HowToPlay({ onContinue }) {
                         <li>Penguraian - Pecahkan masalah kepada bahagian kecil</li>
                         <li>Pengabstrakan - Kenal pasti maklumat penting</li>
                         <li>Pembinaan Algoritma - Susun langkah penyelesaian</li>
-                        <li>Penyahpepijat - Kesan dan betulkan ralat</li>
+                        <li>Penyahpepijatan - Kesan dan betulkan ralat</li>
                     </ul>
                     <p style={{ fontWeight: 'bold', color: '#79f8f8', marginTop: '10px' }}>
                         🎮 Objektif: Selesaikan 3 misi dan kumpul lencana pencapaian!
@@ -94,7 +94,7 @@ function HowToPlay({ onContinue }) {
                     <ul style={{ marginLeft: '20px', lineHeight: '1.6' }}>
                         <li>Pilih misi (Unit Akademik, Unit Peperiksaan, Unit Kewangan)</li>
                         <li>Baca naratif dan arahan yang diberikan oleh Robot Algo.</li>
-                        <li>Lengkapkan tugasan pada setiap fasa (Penguraian, Pengabstrakan, Pembinaan Algoritma, Penyahpepijat).</li>
+                        <li>Lengkapkan tugasan pada setiap fasa (Penguraian, Pengabstrakan, Pembinaan Algoritma, Penyahpepijatan).</li>
                         <li>Tekan butang simpan untuk menyimpan jawapan.</li>
                         <li>Setiap jawapan betul akan memberi anda mata.</li>
                         <li>Tekan hantar untuk mengetahui markah, ganjaran dan lencana untuk setiap misi.</li>

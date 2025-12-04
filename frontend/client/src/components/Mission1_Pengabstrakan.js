@@ -180,8 +180,8 @@ function Mission1_Pengabstrakan({ onContinue, onFeedback }) {
         if (!isMaklumatCorrect) errorMsg += 'Semak bahagian MAKLUMAT. ';
         if (!isLangkahCorrect) errorMsg += 'Semak bahagian MODEL LOGIK.';
         
-        // Robot Glow: Red ('error')
-        onFeedback(errorMsg, 3000, 'error');
+        // Robot Glow: Red ('false')
+        onFeedback(errorMsg, 3000, false);
         return;
     }
 
@@ -209,12 +209,12 @@ function Mission1_Pengabstrakan({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      // Robot Glow: Green ('success')
-      onFeedback(`Hebat! Kamu berjaya membina model logik ringkas untuk sistem pendaftaran. (+${calculatedScore} Markah)`, 3000, 'success');
+      // Robot Glow: Green ('true')
+      onFeedback(`Hebat! Kamu berjaya membina model logik ringkas untuk sistem pendaftaran. (+${calculatedScore} Markah)`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);
-      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -227,7 +227,7 @@ function Mission1_Pengabstrakan({ onContinue, onFeedback }) {
     setIsCorrect(false);
     setAttempts(0); // Reset attempts to 0 for fresh scoring
     // Robot Glow: Neutral
-    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, 'neutral');
+    onFeedback('🔄 Susunan telah direset. Cuba semula dengan teliti.', 2000, null);
   };
 
   const allItems = [...maklumatItems.available, ...maklumatItems.penting, ...langkahItems.available_langkah, ...langkahItems.ordered_langkah];

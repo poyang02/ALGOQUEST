@@ -21,7 +21,7 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
 
   const checkAnswer = async () => {
     if (!selectedAnswer) {
-       if (onFeedback) onFeedback('❌ Sila pilih satu jawapan dahulu.', 3000, 'error');
+       if (onFeedback) onFeedback('❌ Sila pilih satu jawapan dahulu.', 3000, false);
        return;
     }
 
@@ -31,7 +31,7 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
       setAttempts(prev => prev + 1);
       setIsCorrect(false);
       if (onFeedback) {
-        onFeedback('❌ Salah. Semak semula logik perbandingan dalam pseudokod. (-5 Markah)', 3000, 'error');
+        onFeedback('❌ Salah. Semak semula logik perbandingan dalam pseudokod. (-5 Markah)', 3000, false);
       }
       return;
     }
@@ -74,13 +74,13 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
         onFeedback(
           `✅ Betul! Simbol perbandingan mesti menggunakan ≥ supaya pelajar yang membayar penuh dikira sebagai Lunas. (+${calculatedScore} Markah)${badgeMsg}`,
           3000,
-          'success'
+          true
         );
       }
 
     } catch (err) {
       console.error("Error submitting:", err);
-      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      if (onFeedback) onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -90,7 +90,7 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
     setSelectedAnswer(null);
     setIsCorrect(false);
     setAttempts(0);
-    if (onFeedback) onFeedback('🔄 Struktur telah direset. Cuba semula.', 2000, 'neutral');
+    if (onFeedback) onFeedback('🔄 Struktur telah direset. Cuba semula.', 2000, null);
   };
 
   const handleNext = () => {

@@ -69,11 +69,10 @@ const clone = obj => JSON.parse(JSON.stringify(obj));
 function Mission1_Penguraian({ onContinue, onFeedback }) {
   const [items, setItems] = useState(clone(INITIAL));
   const [activeId, setActiveId] = useState(null);
-  const [isCorrect, setIsCorrect] = useState(false);
   
   // Scoring State
   const [earnedScore, setEarnedScore] = useState(0);
-  const [attempts, setAttempts] = useState(0); // Tracks how many times user got it wrong
+  const [attempts, setAttempts] = useState(0); // Tracks wrong attempts
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // --- find container of item ---
@@ -95,9 +94,6 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
     const to = findContainer(over.id) || over.id;
 
     if (!from || !to) return;
-
-    // Reset correct state if user moves items after checking
-    setIsCorrect(false); 
 
     if (from === to) {
       // reorder
@@ -136,41 +132,31 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
       output: ['i5']
     };
 
-    // 1. Calculate correctness locally
     const ok =
       JSON.stringify(items.input.map(i => i.id).sort()) === JSON.stringify(correct.input.sort()) &&
       JSON.stringify(items.proses.map(i => i.id).sort()) === JSON.stringify(correct.proses.sort()) &&
       JSON.stringify(items.output.map(i => i.id).sort()) === JSON.stringify(correct.output.sort());
 
     if (ok) {
-        // Correct Logic: Start at 25, deduct 5 per attempt, min 5
         const finalScore = Math.max(5, 25 - (attempts * 5));
         setEarnedScore(finalScore);
-        setIsCorrect(true);
-
-        // FIX: Pass 'success' string for Green Glow
-        onFeedback(`🎉 Hebat! Semua komponen betul! (+${finalScore} Markah)`, 3000, 'success'); 
+        onFeedback(`🎉 Hebat! Semua komponen betul! (+${finalScore} Markah)`, 3000, true); 
     } else {
-        // Incorrect Logic
         setAttempts(prev => prev + 1);
-        setIsCorrect(false);
-
-        // FIX: Pass 'error' string for Red Glow
-        onFeedback('😅 Masih ada komponen yang tersilap! (-5 Markah)', 3000, 'error'); 
+        onFeedback('😅 Masih ada komponen yang tersilap! (-5 Markah)', 3000, false); 
     }
   };
 
   // --- RESET ---
   const handleReset = () => {
     setItems(clone(INITIAL));
-    setIsCorrect(false);
-    setAttempts(0); // FIX: Reset attempts so score goes back to 25
-    onFeedback('🔄 Reset berjaya. Markah kembali penuh.', 2000, 'neutral');
+    setAttempts(0);
+    onFeedback('🔄 Reset berjaya. Markah kembali penuh.', 2000, null);
   };
 
   // --- SUBMIT TO BACKEND ---
   const handleNext = async () => {
-     if (!isCorrect) return;
+     if (earnedScore === 0) return; // Only allow if scored
      
      setIsSubmitting(true);
      const token = localStorage.getItem('token');
@@ -186,12 +172,11 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
           mission: 1,
           phase: 'penguraian',
           isCorrect: true,
-          score: earnedScore, // Send the locally calculated score
+          score: earnedScore,
           badge: null
         })
       });
       
-      // Move to next phase
       onContinue(earnedScore);
 
      } catch (err) {
@@ -234,17 +219,17 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
           Buat Semula
         </button>
 
-        <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting || isCorrect}>
-          {isCorrect ? 'Betul!' : 'Semak'}
+        <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting || earnedScore > 0}>
+          {earnedScore > 0 ? 'Betul!' : 'Semak'}
         </button>
 
         <button
           className="primary-button"
           style={{
-            backgroundColor: isCorrect ? '#2ecc71' : '#999',
-            cursor: isCorrect ? 'pointer' : 'not-allowed'
+            backgroundColor: earnedScore > 0 ? '#2ecc71' : '#999',
+            cursor: earnedScore > 0 ? 'pointer' : 'not-allowed'
           }}
-          disabled={!isCorrect || isSubmitting}
+          disabled={earnedScore === 0 || isSubmitting}
           onClick={handleNext}
         >
           {isSubmitting ? 'Menghantar...' : 'Seterusnya'}

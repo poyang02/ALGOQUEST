@@ -148,7 +148,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        onFeedback('❌ Hmm, semak semula. (-5 Markah)', 3000, 'error'); // Red Glow 'error'
+        onFeedback('❌ Hmm, semak semula. (-5 Markah)', 3000, false); // Red Glow 'false'
         return;
     }
 
@@ -176,12 +176,12 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      // Green Glow 'success'
-      onFeedback(`✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul. (+${calculatedScore} Markah)`, 3000, 'success');
+      // Green Glow 'true'
+      onFeedback(`✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul. (+${calculatedScore} Markah)`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);
-      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghubungi pelayan.', 3000, false);
     } finally {
       setIsSubmitting(false);
     }
@@ -194,7 +194,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
         { id: 'item-2', content: 'Markah PA' },
         { id: 'item-3', content: 'Tentukan Gred' },
         { id: 'item-4', content: 'Gred Huruf' },
-        { id: 'item-5', content: 'Kehadiran (%)' },
+        { id: 'item-5', content: 'No Pendaftaran' },
         { id: 'item-6', content: 'Semak Syarat Lulus' },
         { id: 'item-7', content: 'Status Lulus' },
         { id: 'item-8', content: 'Markah PB' },
@@ -205,7 +205,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
     });
     setIsCorrect(false);
     setAttempts(0); // Reset attempts
-    onFeedback('🔄 Susunan telah direset. Cuba semula.', 2000, 'neutral');
+    onFeedback('🔄 Susunan telah direset. Cuba semula.', 2000, null);
   };
 
   const handleNext = () => {

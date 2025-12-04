@@ -68,7 +68,7 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
       });
     } catch (err) {
       console.error("Mission submit failed:", err);
-      onFeedback('⚠️ Ralat menghantar markah ke pelayan.', 3000, 'error');
+      onFeedback('⚠️ Ralat menghantar markah ke pelayan.', 3000, false);
     }
   };
 
@@ -80,7 +80,7 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
-        onFeedback('❌ 😅 Masih ada langkah yang tersilap! (-5 Markah)', 3000, 'error');
+        onFeedback('❌ 😅 Masih ada langkah yang tersilap! (-5 Markah)', 3000, false);
         return;
     }
 
@@ -94,7 +94,7 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
 
     let msg = `✅ 🎉 Hebat! Algoritma kamu betul! (+${calculatedScore} Markah)`;
     if (badgeEarned) msg += ' 🏅 Lencana Master Algoritma diperolehi!';
-    onFeedback(msg, 3000, 'success');
+    onFeedback(msg, 3000, true);
   };
 
   const reset = () => {
@@ -102,7 +102,7 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
     setOrderedSteps([]);
     setIsCorrect(false);
     setAttempts(0);
-    onFeedback('🔄 Susunan algoritma telah direset. Cuba bina semula dari awal.', 2000, 'neutral');
+    onFeedback('🔄 Susunan algoritma telah direset. Cuba bina semula dari awal.', 2000, null);
   };
 
   const handleNext = () => {

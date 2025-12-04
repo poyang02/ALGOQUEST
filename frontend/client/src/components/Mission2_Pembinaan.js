@@ -232,7 +232,7 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     });
     setIsCorrect(false);
     setAttempts(0); // Reset attempts
-    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', 2000, 'neutral');
+    onFeedback?.('🔄 Carta alir telah direset. Cuba susun semula langkah yang betul.', 2000, null);
   };
 
   const checkAnswer = async () => {
