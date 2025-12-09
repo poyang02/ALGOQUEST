@@ -259,7 +259,7 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     }
 
     // Correct: Calculate Score
-    const calculatedScore = Math.max(5, 25 - (attempts * 5));
+    let calculatedScore = Math.max(5, 25 - (attempts * 5));
 
     setIsSubmitting(true);
     const token = localStorage.getItem('token');
@@ -277,7 +277,7 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
           isCorrect: true,
           score: calculatedScore,
           // Award badge if correct on first attempt
-          badge: attempts === 0 ? 'Master Carta Alir' : null
+          badge: attempts === 0 ? 'Master Algoritma' : null
         })
       });
 
@@ -286,11 +286,13 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
       let badgeMsg = '';
       if (attempts === 0) {
-           badgeMsg = '\n\n🏅 Anda telah memperoleh lencana "Master Carta Alir".';
-           onBadgeEarned?.('Master Carta Alir');
+            calculatedScore += 5;  // ⭐ Give extra 5 marks
+
+           badgeMsg = '\n\n🏅 Anda telah memperoleh lencana "Master Algoritma".';
+           onBadgeEarned?.('Master Algoritma');
       }
 
-      onFeedback?.(`✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
+      onFeedback?.(`✅ Struktur betul! PB dan PA disemak sebelum status ditetapkan.${badgeMsg}`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);
@@ -303,7 +305,7 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   const handleNext = () => {
     if (!isCorrect) return;
     // Pass score AND badge name to parent
-    const badge = attempts === 0 ? 'Master Carta Alir' : null;
+    const badge = attempts === 0 ? 'Master Algoritma' : null;
     onContinue?.(earnedScore, badge);
   };
 
@@ -313,9 +315,9 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   return (
     <div>
       <h3>TAHAP 3: PEMBINAAN ALGORITMA</h3>
-      <p><em>Sistem Peperiksaan memerlukan algoritma keputusan lulus/gagal.  
+      <p>Sistem Peperiksaan memerlukan algoritma keputusan lulus/gagal.  
 Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
-</em></p>
+</p>
       <hr />
 
       <DndContext

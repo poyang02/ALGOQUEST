@@ -207,7 +207,7 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      onFeedback(`✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting. (+${calculatedScore} Markah)`, 3000, true);
+      onFeedback(`✅ Betul: Hebat! Anda berjaya mengenal pasti semua maklumat penting.`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);

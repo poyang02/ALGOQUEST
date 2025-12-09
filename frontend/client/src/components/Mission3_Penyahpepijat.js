@@ -72,7 +72,7 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
 
       if (onFeedback) {
         onFeedback(
-          `✅ Betul! Simbol perbandingan mesti menggunakan ≥ supaya pelajar yang membayar penuh dikira sebagai Lunas. (+${calculatedScore} Markah)${badgeMsg}`,
+          `✅ Betul! Simbol perbandingan mesti menggunakan ≥ supaya pelajar yang membayar penuh dikira sebagai Lunas.${badgeMsg}`,
           3000,
           true
         );
@@ -101,7 +101,7 @@ function Mission3_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned, setRobo
 
   return (
     <div>
-      <h3>TAHAP 4: PENYAHPEPIJAT</h3>
+      <h3>TAHAP 4: PENYAHPEPIJATAN</h3>
       <p> 
         Sistem kewangan gagal mengira baki yuran dengan tepat. Dikesan bahawa pelajar yang telah membuat bayaran penuh masih dipaparkan sebagai “Belum Lunas”.  Bantu Sistem Kewangan membetulkan pseudokod supaya baki dan status bayaran dapat dijana dengan betul.
       </p>

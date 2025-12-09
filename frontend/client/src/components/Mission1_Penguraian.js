@@ -140,7 +140,7 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
     if (ok) {
         const finalScore = Math.max(5, 25 - (attempts * 5));
         setEarnedScore(finalScore);
-        onFeedback(`🎉 Hebat! Semua komponen betul! (+${finalScore} Markah)`, 3000, true); 
+        onFeedback(`🎉 Hebat! Semua komponen betul!`, 3000, true); 
     } else {
         setAttempts(prev => prev + 1);
         onFeedback('😅 Masih ada komponen yang tersilap! (-5 Markah)', 3000, false); 
@@ -219,9 +219,14 @@ function Mission1_Penguraian({ onContinue, onFeedback }) {
           Buat Semula
         </button>
 
-        <button className="primary-button" onClick={checkAnswer} disabled={isSubmitting || earnedScore > 0}>
-          {earnedScore > 0 ? 'Betul!' : 'Semak Jawapan'}
-        </button>
+        <button
+  className="primary-button"
+  onClick={checkAnswer}
+  disabled={isSubmitting || earnedScore > 0}
+>
+  Semak Jawapan
+</button>
+
 
         <button
           className="primary-button"

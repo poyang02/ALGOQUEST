@@ -101,7 +101,7 @@ function Hub({ onStartMission1, onStartMission2, onStartMission3, onLogout }) {
             }
         } 
         else if (missionId === 'mission2') {
-            if (allBadges.includes('mission2-pembinaan-master')) displayList.push('Master Carta Alir');
+            if (allBadges.includes('mission2-pembinaan-master')) displayList.push('Master Algoritma');
             if (allBadges.includes('mission2-debugging-master')) displayList.push('Master Pemulih Logik');
         }
         else if (missionId === 'mission3') {

@@ -7,7 +7,7 @@ import Mission1_Penyahpepijat from './Mission1_Penyahpepijat';
 import Mission1_Complete from './Mission1_Complete';
 
 const ROBOT_TEXTS = {
-  penguraian: "Hai! Mari kita bantu Kampus Digital mengenal pasti semula Input, Proses, dan Output dalam modul pendaftaran pelajar. Seret setiap item ke tempat yang betul!",
+  penguraian: "Hai! Mari kita bantu Kampus Digital mengenal pasti semula Input, Proses, dan Output dalam modul pendaftaran pelajar.Seret setiap item ke tempat yang betul supaya aliran data pelajar lengkap dan teratur!",
   pengabstrakan: "Klik dan seret maklumat penting ke ruangan Maklumat Penting. Kemudian, susun langkah pendaftaran di bahagian kanan supaya sistem berfungsi dengan betul!",
   pembinaan: "Klik anak panah ➡️ untuk pindahkan langkah ke kotak algoritma. Bila semua langkah dah pindah, guna anak panah ⬆️ dan ⬇️ untuk susun ikut urutan jujukan.",
   penyahpepijat: "Hmm... nampaknya sistem cetak slip dulu sebelum daftar kursus. Susun semula langkah dengan isi nombor urutan yang betul ya!",

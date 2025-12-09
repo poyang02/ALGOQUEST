@@ -190,7 +190,7 @@ function Mission3_Pengabstrakan({ onContinue, onFeedback }) {
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      onFeedback(`✅ “Hebat! Anda telah menyusun logik sistem kewangan Kampus Digital dengan tepat. Kini sistem boleh memproses bayaran pelajar secara automatik! (+${calculatedScore} Markah)`, 3000, true);
+      onFeedback(`✅ “Hebat! Anda telah menyusun logik sistem kewangan Kampus Digital dengan tepat. Kini sistem boleh memproses bayaran pelajar secara automatik!`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);

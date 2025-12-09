@@ -177,7 +177,7 @@ function Mission2_Penguraian({ onContinue, onFeedback }) {
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
       // Green Glow 'true'
-      onFeedback(`✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul. (+${calculatedScore} Markah)`, 3000, true);
+      onFeedback(`✅ Hebat! Anda telah mengenal pasti input, proses dan output dengan betul.`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);

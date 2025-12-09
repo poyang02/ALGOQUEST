@@ -79,7 +79,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
     await submitPhase(calculatedScore, badgeEarned);
 
     let badgeMsg = badgeEarned ? ' 🏅 Lencana Master Pemulih Logik diperolehi!' : '';
-    onFeedback(`✅ Hebat! Urutan betul. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
+onFeedback(`✅ Hebat! Urutan betul.${badgeMsg}`, 3000, true);
     setShowNextButton(true);
     setIsSubmitting(false);
   };
@@ -93,7 +93,7 @@ function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
 
   return (
     <div>
-      <h3>TAHAP 4: PENYAHPEPIJAT</h3>
+      <h3>TAHAP 4: PENYAHPEPIJATAN</h3>
       <p>Sistem Akademik mencetak slip pendaftaran sebelum pelajar mendaftar kursus. Susun semula langkah pseudokod di bawah dengan memberi nombor urutan yang betul (1–5) supaya sistem berfungsi dengan tepat.
 </p>
       <hr />

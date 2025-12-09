@@ -92,7 +92,7 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
 
     await submitPhase(calculatedScore, badgeEarned);
 
-    let msg = `✅ 🎉 Hebat! Algoritma kamu betul! (+${calculatedScore} Markah)`;
+    let msg = `✅ 🎉 Hebat! Algoritma kamu betul!`;
     if (badgeEarned) msg += ' 🏅 Lencana Master Algoritma diperolehi!';
     onFeedback(msg, 3000, true);
   };

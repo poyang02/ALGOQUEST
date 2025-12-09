@@ -171,7 +171,7 @@ function Mission3_Penguraian({ onContinue, setRobotText, onFeedback, isCorrect: 
 
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
-      if (onFeedback) onFeedback(`✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan. (+${calculatedScore} Markah)`, 3000, true);
+      if (onFeedback) onFeedback(`✅ Bagus! Anda telah mengenal pasti komponen utama sistem kewangan.`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);

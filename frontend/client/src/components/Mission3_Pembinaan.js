@@ -258,7 +258,7 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
            onBadgeEarned?.('Master Algoritma');
       }
 
-      onFeedback?.(`✅ Jawapan Betul! “Hebat! Struktur algoritma kewangan kamu lengkap. (+${calculatedScore} Markah)${badgeMsg}`, 3000, true);
+      onFeedback?.(`✅ Jawapan Betul! “Hebat! Struktur algoritma kewangan kamu lengkap.${badgeMsg}`, 3000, true);
 
     } catch (err) {
       console.error("Error submitting:", err);
@@ -281,9 +281,9 @@ function Mission3_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
   return (
     <div>
       <h3>TAHAP 3: PEMBINAAN ALGORITMA</h3>
-      <p><em>Sistem Kewangan Kampus Digital kini sedang membina algoritma lengkap untuk memproses bayaran yuran setiap pelajar.  
+      <p>Sistem Kewangan Kampus Digital kini sedang membina algoritma lengkap untuk memproses bayaran yuran setiap pelajar.  
 Bantu sistem menyusun langkah pseudokod dalam urutan yang betul dan padankan setiap langkah dengan simbol carta alir yang sesuai. Pastikan struktur ulangan digunakan supaya proses pembayaran boleh dijalankan untuk setiap pelajar.
-</em></p>
+</p>
       <hr />
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>

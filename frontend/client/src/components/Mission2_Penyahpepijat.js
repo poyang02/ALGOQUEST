@@ -85,7 +85,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
 
       if (onFeedback) {
         onFeedback(
-          `✅ “Hebat! Anda telah membetulkan ralat logik. (+${calculatedScore} Markah)${badgeMsg}`, 
+          `✅ “Hebat! Anda telah membetulkan ralat logik.${badgeMsg}`, 
           3000, 
           true
         );
@@ -107,7 +107,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
 
   return (
     <div>
-      <h3>TAHAP 4: PENYAHPEPIJAT</h3>
+      <h3>TAHAP 4: PENYAHPEPIJATAN</h3>
 
       <p>
         Sistem peperiksaan mengalami ralat dalam menentukan keputusan pelajar.
@@ -173,19 +173,19 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
             {/* Column 1: Input */}
             <div>
               <p style={{ fontWeight: 'bold' }}>Input</p>
-              <p>PB = 70, PA = 80 (sepatutnya Lulus)</p>
+              <p>PB = 70, PA = 80</p>
               <p>PB = 70, PA = 30</p>
               <p>PB = 40, PA = 60</p>
-              <p>PB = 60, PA = 60 (sepatutnya Lulus)</p>
+              <p>PB = 60, PA = 60</p>
             </div>
 
             {/* Column 2: Output Sistem */}
             <div>
               <p style={{ fontWeight: 'bold' }}>Output Sistem</p>
-              <p>Status: Gagal ❌</p>
+              <p>Status: Gagal ❌(sepatutnya Lulus)</p>
               <p>Status: Lulus ✅</p>
               <p>Status: Gagal ✅</p>
-              <p>Status: Gagal ❌</p>
+              <p>Status: Gagal ❌(sepatutnya Lulus)</p>
             </div>
           </div>
         </div>

@@ -210,7 +210,7 @@ function Mission1_Pengabstrakan({ onContinue, onFeedback }) {
       setEarnedScore(calculatedScore);
       setIsCorrect(true);
       // Robot Glow: Green ('true')
-      onFeedback(`Hebat! Kamu berjaya membina model logik ringkas untuk sistem pendaftaran. (+${calculatedScore} Markah)`, 3000, true);
+      onFeedback(`Hebat! Kamu berjaya membina model logik ringkas untuk sistem pendaftaran.`, 3000, true);
       
     } catch (err) {
       console.error("Error submitting:", err);
