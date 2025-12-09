@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function Mission1_Penyahpepijat({ onContinue, onFeedback }) {
+function Mission1_Penyahpepijat({ onContinue, onFeedback, onBadgeEarned }) {
   const initialAnswers = {
     step1: '', step2: '', step3: '', step4: '', step5: '',
   };
@@ -86,10 +86,17 @@ onFeedback(`✅ Hebat! Urutan betul.${badgeMsg}`, 3000, true);
 
   const handleNext = () => {
     if (showNextButton) {
-      const badge = attempts === 0 ? 'Master Pemulih Logik' : null;
-      onContinue(earnedScore, badge);
+        const badge = attempts === 0 ? 'Master Pemulih Logik' : null;
+
+        // ✅ Notify Hub immediately about the earned badge
+        if (badge && typeof onBadgeEarned === 'function') {
+            onBadgeEarned('mission1', badge);
+        }
+
+        onContinue(earnedScore, badge);
     }
-  };
+};
+
 
   return (
     <div>

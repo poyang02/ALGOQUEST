@@ -8,7 +8,7 @@ const initialAvailableSteps = [
   { id: 's5', content: 'Mula' },
 ];
 
-function Mission1_Pembinaan({ onContinue, onFeedback }) {
+function Mission1_Pembinaan({ onContinue, onFeedback, onBadgeEarned }) {
   const [availableSteps, setAvailableSteps] = useState(initialAvailableSteps);
   const [orderedSteps, setOrderedSteps] = useState([]);
   const [isCorrect, setIsCorrect] = useState(false);
@@ -108,8 +108,15 @@ function Mission1_Pembinaan({ onContinue, onFeedback }) {
   const handleNext = () => {
     if (!isCorrect) return;
     const badge = attempts === 0 ? 'Master Algoritma' : null;
+
+    // ✅ Notify Hub immediately about the earned badge
+    if (badge && typeof onBadgeEarned === 'function') {
+        onBadgeEarned('mission1', badge);
+    }
+
     onContinue(earnedScore, badge);
-  };
+};
+
 
   return (
     <div>
