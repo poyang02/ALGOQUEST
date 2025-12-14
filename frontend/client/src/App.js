@@ -5,8 +5,9 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import Login from './components/Login';
 import Register from './components/Register';
 import Game from './components/Game';
-import SettingsMenu from './components/SettingsMenu'; 
-import RobotMessage from './components/RobotMessage'; 
+import SettingsMenu from './components/SettingsMenu';
+import RobotMessage from './components/RobotMessage';
+import SplashScreen from './components/SplashScreen'; // 🌟 NEW IMPORT
 
 function App() {
     const location = useLocation();
@@ -16,17 +17,23 @@ function App() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
-    const [robotMessage, setRobotMessage] = useState("Sila log masuk atau daftar untuk memulihkan CodeCity."); 
-    
-    // 🌟 NEW: State for global audio control
+    const [robotMessage, setRobotMessage] = useState("Sila log masuk atau daftar untuk memulihkan CodeCity.");
+
+    // 🌟 NEW: Splash Screen State
+    const [showSplash, setShowSplash] = useState(true);
+
+    // 🌟 NEW: Global audio mute state
     const [isMuted, setIsMuted] = useState(true);
-    
-    // 🌟 NEW: Function to toggle mute state
+
+    // 🌟 NEW: Toggle mute handler
     const toggleMute = useCallback(() => {
         setIsMuted(prev => !prev);
     }, []);
 
     useEffect(() => {
+        // REMOVE old splash timeout
+        // Now completely controlled by the SplashScreen itself
+
         if (location.pathname === '/login' || location.pathname === '/register') {
             setRobotMessage("Sila log masuk atau daftar untuk memulihkan CodeCity.");
         }
@@ -34,11 +41,10 @@ function App() {
         const fetchUser = async () => {
             if (token) {
                 try {
-                    // NOTE: This uses local server mock API, replace with real auth if necessary
                     const response = await fetch('https://algoquest-api.onrender.com/api/user/me', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
-                    
+
                     if (response.ok) {
                         const data = await response.json();
                         setUser(data);
@@ -65,15 +71,13 @@ function App() {
 
     const handleReturnToHub = () => {
         setShowSettings(false);
-        // Sends user to the /game route with state {screen: 'hub'}
-        navigate('/game', { state: { screen: 'hub' }, replace: true }); 
-    }
+        navigate('/game', { state: { screen: 'hub' }, replace: true });
+    };
 
     // 1. FINAL BACKGROUND LOGIC
     const getBackgroundStyle = () => {
         const gameState = location.state?.screen;
 
-        // Auth screens (Login/Register)
         if (location.pathname === '/login' || location.pathname === '/register') {
             return {
                 backgroundImage: `url('/background5.jpg')`,
@@ -84,7 +88,6 @@ function App() {
             };
         }
 
-        // Welcome / HowToPlay / Hub
         if (token && (gameState === 'welcome' || gameState === 'howToPlay' || gameState === 'hub')) {
             return {
                 backgroundImage: `url('/background6.jpg')`,
@@ -95,7 +98,6 @@ function App() {
             };
         }
 
-        // Missions (all Mission1,2,3 pages)
         if (token && location.pathname === '/game') {
             return {
                 backgroundImage: `url('/background7.jpg')`,
@@ -109,15 +111,13 @@ function App() {
         return {};
     };
 
-
     const isAuthScreen = location.pathname === '/login' || location.pathname === '/register';
 
-    // 2. Final Header Class Logic (Includes fix for Mission pages)
+    // 2. HEADER CLASS LOGIC
     const getHeaderClass = () => {
         const gameState = location.state?.screen;
-        const isGamePath = location.pathname === '/game'; // Check if we are on the game route
+        const isGamePath = location.pathname === '/game';
 
-        // Remove dark overlay AND center content for Auth/Welcome/HowToPlay/Hub
         if (
             isAuthScreen ||
             (token && (gameState === 'welcome' || gameState === 'howToPlay' || gameState === 'hub'))
@@ -125,13 +125,21 @@ function App() {
             return 'no-overlay-auth center-content';
         }
 
-        // Remove dark overlay ONLY for Mission Screens (Fix requested by user)
         if (token && isGamePath) {
-            return 'no-overlay'; 
+            return 'no-overlay';
         }
 
-        return ''; // Default behavior (which applies the dark overlay only to game screens without a state)
+        return '';
     };
+
+    // 🌟 NEW: Splash Screen Rendering
+    if (showSplash) {
+        return (
+            <SplashScreen
+                onFinish={() => setShowSplash(false)}
+            />
+        );
+    }
 
     if (isLoading) {
         return (
@@ -153,32 +161,30 @@ function App() {
     return (
         <div className="App" style={getBackgroundStyle()}>
 
-            {/* 🌟 NEW: GLOBAL AUDIO PLAYER 🌟 */}
+            {/* 🌟 GLOBAL AUDIO PLAYER */}
             <audio id="background-music" autoPlay loop muted={isMuted}>
-                {/* Ensure bgsound.mp3 is in your public folder */}
                 <source src="/bgsound.mp3" type="audio/mpeg" />
                 Your browser does not support the audio element.
             </audio>
 
-            {/* 3. Settings Modal */}
+            {/* SETTINGS MODAL */}
             {showSettings && token && (
-                <SettingsMenu 
+                <SettingsMenu
                     onClose={() => setShowSettings(false)}
                     onLogout={handleLogout}
                     onReturnToHub={handleReturnToHub}
-                    isMuted={isMuted}            // 🌟 NEW: Pass Mute State
-                    onToggleMute={toggleMute}    // 🌟 NEW: Pass Toggle Function
+                    isMuted={isMuted}
+                    onToggleMute={toggleMute}
                 />
             )}
 
             <header className={`App-header ${getHeaderClass()}`}>
 
-                {/* 4. Settings Icon (Top Left) */}
                 {token && (
-                    <div 
-                        className="settings-icon" 
+                    <div
+                        className="settings-icon"
                         onClick={() => setShowSettings(true)}
-                        title="Settings" 
+                        title="Settings"
                     >
                         <img src="/settings.png" alt="Settings" />
                     </div>
@@ -188,9 +194,9 @@ function App() {
 
                 {isAuthScreen && (
                     <>
-                        <img 
-                            src="/robot.png" 
-                            alt="Robot Algo Helper" 
+                        <img
+                            src="/robot.png"
+                            alt="Robot Algo Helper"
                             className="auth-robot-image"
                         />
                     </>
@@ -199,10 +205,8 @@ function App() {
                 <Routes>
                     {token ? (
                         <>
-                            {/* 5. Game Route is the primary route, passes user and handlers */}
                             <Route path="/game" element={<Game user={user} onLogout={handleLogout} />} />
-                            {/* 6. Hub Route is a static alias for Game when state is hub */}
-                            <Route path="/hub" element={<Navigate to="/game" state={{ screen: 'hub' }} replace />} /> 
+                            <Route path="/hub" element={<Navigate to="/game" state={{ screen: 'hub' }} replace />} />
                             <Route path="*" element={<Navigate to="/game" />} />
                         </>
                     ) : (
@@ -217,7 +221,7 @@ function App() {
                                     <Register />
                                 </div>
                             } />
-                            <Route path="*" element={<Navigate to="/login" />} />
+                            <Route path="*" element={<Navigate to="/login" replace />} />
                         </>
                     )}
                 </Routes>
