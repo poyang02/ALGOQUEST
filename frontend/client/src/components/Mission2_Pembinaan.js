@@ -428,85 +428,146 @@ Tugas anda ialah  menyusun aliran keputusan dan menukarkannya kepada Carta Alir.
               </div>
 
               {/* Branch arrows from diamonds to rectangle2 */}
-              <div style={{ position: 'relative', width: '100%', height: '0px' }}>
-                {(() => {
-                  // === Arrow configuration ===
-                  const baseLeftOffset = 70; 
-                  const arrowConfig = {
-                    diamond1: { top: -200, horizontal: 80, vertical: 150 },
-                    diamond2: { top: -70, horizontal: 80, vertical: 70 },
-                  };
-                  return (
-                    <>
-                      {/* Diamond1 arrow */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond1.top}px`,
-                          left: `calc(50% + ${baseLeftOffset}px)`,
-                          width: `${arrowConfig.diamond1.horizontal}px`,
-                          height: '1px',
-                          backgroundColor: '#ffffffff',
-                        }}
-                      />
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond1.top}px`,
-                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal}px)`,
-                          width: '1px',
-                          height: `${arrowConfig.diamond1.vertical}px`,
-                          backgroundColor: '#ffffffff',
-                        }}
-                      />
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond1.top - 15}px`,
-                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal / 4}px)`,
-                          fontSize: '0.7rem',
-                          color: '#ffffffff',
-                        }}
-                      >
-                        Tidak
-                      </span>
+<div style={{ position: 'relative', width: '100%', height: '0px' }}>
+  {(() => {
+    // === Arrow configuration ===
+    const baseLeftOffset = 70; 
+    const arrowConfig = {
+      diamond1: { top: -200, horizontal: 80, vertical: 150 },
+      diamond2: { top: -70, horizontal: 80, vertical: 60 },
+    };
 
-                      {/* Diamond2 arrow */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond2.top}px`,
-                          left: `calc(50% + ${baseLeftOffset}px)`,
-                          width: `${arrowConfig.diamond2.horizontal}px`,
-                          height: '1px',
-                          backgroundColor: '#ffffffff',
-                        }}
-                      />
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond2.top}px`,
-                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal}px)`,
-                          width: '1px',
-                          height: `${arrowConfig.diamond2.vertical}px`,
-                          backgroundColor: '#ffffffff',
-                        }}
-                      />
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: `${arrowConfig.diamond2.top - 15}px`,
-                          left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal / 4}px)`,
-                          fontSize: '0.7rem',
-                          color: '#ffffffff',
-                        }}
-                      >
-                        Tidak
-                      </span>
-                    </>
-                  );
-                })()}
-              </div>
+    // Rectangle2 → Parallelogram2 arrow config
+    const rect2Arrow = {
+      top: 50,
+      down: 45,
+      left: 70,
+    };
+
+    return (
+      <>
+        {/* Diamond1 arrow */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond1.top}px`,
+            left: `calc(50% + ${baseLeftOffset}px)`,
+            width: `${arrowConfig.diamond1.horizontal}px`,
+            height: '1px',
+            backgroundColor: '#fff',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond1.top}px`,
+            left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal}px)`,
+            width: '1px',
+            height: `${arrowConfig.diamond1.vertical}px`,
+            backgroundColor: '#fff',
+          }}
+        />
+        
+
+        <span
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond1.top - 15}px`,
+            left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond1.horizontal / 4}px)`,
+            fontSize: '0.7rem',
+            color: '#fff',
+          }}
+        >
+          Tidak
+        </span>
+
+        {/* Diamond2 arrow */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond2.top}px`,
+            left: `calc(50% + ${baseLeftOffset}px)`,
+            width: `${arrowConfig.diamond2.horizontal}px`,
+            height: '1px',
+            backgroundColor: '#fff',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond2.top}px`,
+            left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal}px)`,
+            width: '1px',
+            height: `${arrowConfig.diamond2.vertical}px`,
+            backgroundColor: '#fff',
+          }}
+        />
+        {/* ⬇ Arrow head (to Rectangle2) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond2.top + arrowConfig.diamond2.vertical}px`,
+            left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal - 4}px)`,
+            width: 0,
+            height: 0,
+            borderLeft: '4px solid transparent',
+            borderRight: '4px solid transparent',
+            borderTop: '8px solid #fff',
+          }}
+        />
+
+        <span
+          style={{
+            position: 'absolute',
+            top: `${arrowConfig.diamond2.top - 15}px`,
+            left: `calc(50% + ${baseLeftOffset + arrowConfig.diamond2.horizontal / 4}px)`,
+            fontSize: '0.7rem',
+            color: '#fff',
+          }}
+        >
+          Tidak
+        </span>
+
+        {/* Rectangle2 → Parallelogram2 */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${rect2Arrow.top}px`,
+            left: `calc(50% + ${baseLeftOffset + 80}px)`,
+            width: '1px',
+            height: `${rect2Arrow.down}px`,
+            backgroundColor: '#fff',
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            top: `${rect2Arrow.top + rect2Arrow.down}px`,
+            left: `calc(50% + ${baseLeftOffset + 80 - rect2Arrow.left}px)`,
+            width: `${rect2Arrow.left}px`,
+            height: '1px',
+            backgroundColor: '#fff',
+          }}
+        />
+        {/* ⬅ Arrow head (to Parallelogram2) */}
+        <div
+          style={{
+            position: 'absolute',
+            top: `${rect2Arrow.top + rect2Arrow.down - 4}px`,
+            left: `calc(50% + ${baseLeftOffset + 80 - rect2Arrow.left - 8}px)`,
+            width: 0,
+            height: 0,
+            borderTop: '4px solid transparent',
+            borderBottom: '4px solid transparent',
+            borderRight: '8px solid #fff',
+          }}
+        />
+      </>
+    );
+  })()}
+</div>
+
+
 
               {/* Rectangle1 in main line + Rectangle2 branching to the right */}
               <div
