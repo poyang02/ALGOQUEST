@@ -12,7 +12,7 @@ const playHoverSound = () => {
     } catch (e) { }
 };
 
-const INITIAL_MOTIVATION = "Sila cipta akaun anda. Jom pulihkan CodeCity!";
+const INITIAL_MOTIVATION = "Sila cipta akaun anda. Jom pulihkan Kampus Digital!";
 const SUCCESS_MESSAGE = "Akaun berjaya didaftarkan! Sila log masuk.";
 
 function Register() {

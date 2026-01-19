@@ -12,7 +12,7 @@ const playHoverSound = () => {
     } catch (e) { }
 };
 
-const INITIAL_MOTIVATION = "Masukkan ID anda dan bantu Algo memulihkan CodeCity!";
+const INITIAL_MOTIVATION = "Masukkan ID anda dan bantu Algo memulihkan Kampus Digital!";
 const ERROR_MESSAGE = "Kata laluan salah. Sila cuba lagi!";
 
 function Login() {
