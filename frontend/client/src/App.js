@@ -8,6 +8,18 @@ import Game from './components/Game';
 import SettingsMenu from './components/SettingsMenu';
 import RobotMessage from './components/RobotMessage';
 import SplashScreen from './components/SplashScreen'; // 🌟 NEW IMPORT
+import useDeviceType from './hooks/useDeviceType';
+
+function AppLayout({ children }) {
+  const { isMobile } = useDeviceType();
+
+  return (
+    <div className={isMobile ? 'mobile-view' : 'desktop-view'}>
+      {children}
+    </div>
+  );
+}
+
 
 function App() {
     const location = useLocation();

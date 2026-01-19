@@ -54,7 +54,7 @@ const INITIAL_DATA = {
     { id: 'd-5', content: 'Program' },
     { id: 'd-6', content: 'Syarat Lulus (≥50%)' },
     { id: 'd-7', content: 'Markah PB' },
-    { id: 'd-8', content: 'Tarikh Cetakan Slip' },
+    { id: 'd-8', content: 'Kehadiran (≥80%)' },
     { id: 'd-9', content: 'No Telefon' },
     { id: 'd-10', content: 'Gred Huruf' },
   ],
@@ -166,7 +166,7 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
   // --- Check Answer & SCORING ---
   const checkAnswer = async () => {
     // Correct Data logic based on Slide 706/708
-    const correctDataPenting = ['d-2','d-6','d-7','d-10','d-3'].sort(); // Markah PA, Syarat, PB, Gred, Status
+    const correctDataPenting = ['d-2','d-6','d-7','d-8',].sort(); // Markah PA, Syarat, PB, Gred, Status
     const userDataPenting = dataItems.penting.map(i => i.id).sort();
     const isDataCorrect = JSON.stringify(correctDataPenting) === JSON.stringify(userDataPenting);
 
