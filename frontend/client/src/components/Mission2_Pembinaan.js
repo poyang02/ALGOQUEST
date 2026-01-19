@@ -259,7 +259,7 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
     }
 
     // Correct: Calculate Score
-    let calculatedScore = Math.max(5, 25 - (attempts * 5));
+    const calculatedScore = Math.max(5, 25 - (attempts * 5));
 
     setIsSubmitting(true);
     const token = localStorage.getItem('token');
@@ -286,8 +286,6 @@ function Mission2_Pembinaan({ onContinue, setRobotText, onBadgeEarned, onFeedbac
 
       let badgeMsg = '';
       if (attempts === 0) {
-            calculatedScore += 5;  // ⭐ Give extra 5 marks
-
            badgeMsg = '\n\n🏅 Anda telah memperoleh lencana "Master Algoritma".';
            onBadgeEarned?.('Master Algoritma');
       }

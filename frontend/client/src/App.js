@@ -17,7 +17,7 @@ function App() {
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [showSettings, setShowSettings] = useState(false);
-    const [robotMessage, setRobotMessage] = useState("Sila log masuk atau daftar untuk memulihkan CodeCity.");
+    const [robotMessage, setRobotMessage] = useState("Sila log masuk atau daftar untuk memulihkan Kampus Digital.");
 
     // 🌟 NEW: Splash Screen State
     const [showSplash, setShowSplash] = useState(true);
@@ -35,7 +35,7 @@ function App() {
         // Now completely controlled by the SplashScreen itself
 
         if (location.pathname === '/login' || location.pathname === '/register') {
-            setRobotMessage("Sila log masuk atau daftar untuk memulihkan CodeCity.");
+            setRobotMessage("Sila log masuk atau daftar untuk memulihkan Kampus Digital.");
         }
 
         const fetchUser = async () => {
