@@ -170,7 +170,7 @@ function Mission2_Pengabstrakan({ onContinue, onFeedback }) {
     const userDataPenting = dataItems.penting.map(i => i.id).sort();
     const isDataCorrect = JSON.stringify(correctDataPenting) === JSON.stringify(userDataPenting);
 
-    const correctLangkah = ['l-1','l-2','l-3']; // Semak Markah -> Tentukan Status
+    const correctLangkah = ['l-2','l-1','l-3']; // Semak Markah -> Tentukan Status
     const userLangkah = stepItems.ordered_langkah.map(i => i.id);
     const isLangkahCorrect = JSON.stringify(correctLangkah) === JSON.stringify(userLangkah);
 
