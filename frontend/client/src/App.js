@@ -9,6 +9,8 @@ import SettingsMenu from './components/SettingsMenu';
 import RobotMessage from './components/RobotMessage';
 import SplashScreen from './components/SplashScreen'; // 🌟 NEW IMPORT
 import useDeviceType from './hooks/useDeviceType';
+import MissionLayout from './components/MissionLayout';
+import Mission2_Penyahpepijat from './components/Mission2_Penyahpepijat';
 
 function AppLayout({ children }) {
   const { isMobile } = useDeviceType();
@@ -20,6 +22,39 @@ function AppLayout({ children }) {
   );
 }
 
+
+function Mission2PenyahpepijatPreview() {
+  const [feedbackText, setFeedbackText] = useState('');
+  const [isCorrect, setIsCorrect] = useState(null);
+
+  const handleFeedback = (message, duration = 3000, correctState = null) => {
+    setFeedbackText(message);
+    setIsCorrect(correctState);
+    setTimeout(() => {
+      setFeedbackText('');
+      setIsCorrect(null);
+    }, duration);
+  };
+
+  const robotText = feedbackText || "Sistem peperiksaan mengalami ralat! Semak pseudokod dan output, kenal pasti ralat logik dan pilih pembetulan yang paling tepat.";
+
+  return (
+    <div style={{ width: '100%', minHeight: '100vh', background: '#0a0d14', color: '#fff', display: 'flex', flexDirection: 'column' }}>
+      <header className="App-header no-overlay" style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <h1 style={{ margin: '20px 0 10px' }}>ALGOQUEST PREVIEW</h1>
+        <hr style={{ width: '90%', borderColor: '#79f8f8', marginBottom: '20px' }} />
+        <MissionLayout robotText={robotText} isCorrect={isCorrect}>
+          <Mission2_Penyahpepijat 
+            onContinue={(score, badge) => {
+              alert(`Phase Complete!\nScore Earned: ${score}\nBadge: ${badge || 'None'}`);
+            }}
+            onFeedback={handleFeedback}
+          />
+        </MissionLayout>
+      </header>
+    </div>
+  );
+}
 
 function App() {
     const location = useLocation();
@@ -215,6 +250,7 @@ function App() {
                 )}
 
                 <Routes>
+                    <Route path="/preview" element={<Mission2PenyahpepijatPreview />} />
                     {token ? (
                         <>
                             <Route path="/game" element={<Game user={user} onLogout={handleLogout} />} />

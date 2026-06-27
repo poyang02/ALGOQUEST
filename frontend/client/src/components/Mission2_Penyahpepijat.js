@@ -2,6 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFeedback }) {
   const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [statements, setStatements] = useState({
+    1: null,
+    2: null,
+    3: null,
+    4: null,
+  });
   const [isCorrect, setIsCorrect] = useState(false);
 
   // Backend Integration State
@@ -21,13 +27,27 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
     }
   }, [setRobotText]);
 
+  const handleStatementSelect = (id, value) => {
+    setStatements(prev => ({
+      ...prev,
+      [id]: value
+    }));
+    setIsCorrect(false); // Reset correct state if they change a statement
+  };
+
   const handleReset = () => {
     setSelectedAnswer(null);
+    setStatements({
+      1: null,
+      2: null,
+      3: null,
+      4: null,
+    });
     setIsCorrect(false);
     setAttempts(0); // Reset attempts
     if (setRobotText) {
       setRobotText(
-        '🔄 Pilihan telah direset. Sila pilih jawapan sekali lagi.'
+        '🔄 Pilihan telah direset. Sila jawab semula Bahagian A dan Bahagian B.'
       );
     }
   };
@@ -35,18 +55,43 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
   const checkAnswer = async () => {
     if (!selectedAnswer) {
       if (onFeedback) {
-        onFeedback('❌ Sila pilih satu jawapan dahulu sebelum menghantar.', 3000, false);
+        onFeedback('❌ Sila pilih jawapan untuk Bahagian A dahulu sebelum menghantar.', 3000, false);
       }
       return;
     }
 
-    const ok = selectedAnswer === correctAnswer;
+    const hasUnanswered = Object.values(statements).some(val => val === null);
+    if (hasUnanswered) {
+      if (onFeedback) {
+        onFeedback('❌ Sila tentukan "Betul" atau "Salah" untuk semua pernyataan di Bahagian B.', 3000, false);
+      }
+      return;
+    }
+
+    const isACorrect = selectedAnswer === correctAnswer;
+    const isBCorrect =
+      statements[1] === 'Salah' &&
+      statements[2] === 'Betul' &&
+      statements[3] === 'Betul' &&
+      statements[4] === 'Betul';
+
+    const ok = isACorrect && isBCorrect;
 
     if (!ok) {
         setAttempts(prev => prev + 1);
         setIsCorrect(false);
+        
+        let msg = '';
+        if (!isACorrect && !isBCorrect) {
+          msg = '❌ Jawapan Bahagian A dan Bahagian B kurang tepat. Semak semula logik pseudokod asal. (-5 Markah)';
+        } else if (!isACorrect) {
+          msg = '❌ Jawapan Bahagian A kurang tepat. Semak semula logik syarat. (-5 Markah)';
+        } else {
+          msg = '❌ Jawapan Bahagian B kurang tepat. Semak semula status pelajar berdasarkan logik pseudokod asal. (-5 Markah)';
+        }
+        
         if (onFeedback) {
-            onFeedback('❌ “Semak semula logik syarat. Sistem sepatutnya menilai kedua-dua markah.” (-5 Markah)', 3000, false);
+            onFeedback(msg, 3000, false);
         }
         return;
     }
@@ -85,7 +130,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
 
       if (onFeedback) {
         onFeedback(
-          `✅ “Hebat! Anda telah membetulkan ralat logik.${badgeMsg}`, 
+          `✅ Hebat! Anda telah membetulkan ralat logik dan menganalisis pernyataan dengan betul.${badgeMsg}`, 
           3000, 
           true
         );
@@ -193,7 +238,7 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
 
 
       <hr />
-      <h4>Apakah punca utama kesilapan logik berdasarkan perbezaan output di atas?</h4>
+      <h4>Bahagian A: Apakah punca utama kesilapan logik berdasarkan perbezaan output di atas?</h4>
 
       {/* Pilihan jawapan – gaya sama seperti sebelum ini */}
       <div>
@@ -237,6 +282,50 @@ function Mission2_Penyahpepijat({ onContinue, setRobotText, onBadgeEarned, onFee
           D. Perbandingan PA {'<'} 50 tidak memberi kesan kepada output.
         </button>
       </div>
+
+      <hr />
+      <h4>Bahagian B: Tentukan sama ada setiap pernyataan berikut adalah betul atau salah berdasarkan logik pseudokod asal.</h4>
+      
+      <table className="styled-table" style={{ width: '100%', marginTop: '10px' }}>
+        <thead>
+          <tr>
+            <th style={{ width: '8%', textAlign: 'center' }}>No.</th>
+            <th>Pernyataan</th>
+            <th style={{ width: '30%', textAlign: 'center' }}>Betul / Salah</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            { id: 1, text: 'Pelajar dengan PB = 80 dan PA = 90 akan mendapat status “Lulus”.' },
+            { id: 2, text: 'Pelajar dengan PB = 45 dan PA = 30 akan mendapat status “Gagal”.' },
+            { id: 3, text: 'Pelajar dengan PB = 60 dan PA = 40 akan mendapat status “Lulus”.' },
+            { id: 4, text: 'Pseudokod asal boleh menghasilkan status “Lulus” walaupun markah PA kurang daripada 50.' }
+          ].map((item) => (
+            <tr key={item.id}>
+              <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{item.id}</td>
+              <td>{item.text}</td>
+              <td>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                  <button
+                    className={`choice-button ${statements[item.id] === 'Betul' ? 'selected' : ''}`}
+                    style={{ margin: 0, padding: '6px 12px', width: 'auto', textAlign: 'center', display: 'inline-block' }}
+                    onClick={() => handleStatementSelect(item.id, 'Betul')}
+                  >
+                    Betul
+                  </button>
+                  <button
+                    className={`choice-button ${statements[item.id] === 'Salah' ? 'selected' : ''}`}
+                    style={{ margin: 0, padding: '6px 12px', width: 'auto', textAlign: 'center', display: 'inline-block' }}
+                    onClick={() => handleStatementSelect(item.id, 'Salah')}
+                  >
+                    Salah
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       <hr />
 
